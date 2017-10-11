@@ -25,7 +25,7 @@ class ActiveDataProvider extends BaseDataProvider {
 		if (!$this->query instanceof ActiveQueryInterface) {
 			throw new InvalidConfigException(
 				'The "query" property must be an instance of a class that implements the '.
-				__NAMESPACE__.'\QueryInterface or its subclasses.'
+				__NAMESPACE__.'\ActiveQueryInterface or its subclasses.'
 			);
 		}
 
