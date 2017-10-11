@@ -71,11 +71,11 @@ interface ActiveQueryInterface {
 	/**
 	 * Add conditions to filter in request to collection
 	 *
-	 * @param array $conditions
+	 * @param array $condition
 	 *
 	 * @return ActiveQuery
 	 */
-	public function where(array $conditions);
+	public function where(array $condition);
 
 	/**
 	 * Set limit to request to collection

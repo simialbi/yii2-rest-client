@@ -4,6 +4,7 @@ namespace simialbi\yii2\rest;
 
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
+use yii\helpers\Inflector;
 use yii\httpclient\Client;
 use yii\httpclient\Exception;
 use yii\httpclient\Request;
@@ -15,7 +16,7 @@ use yii\web\ServerErrorHttpException;
  * Class Query
  * HTTP transport by GuzzleHTTP
  *
- * @package chsergey\rest
+ * @package simialbi\yii2\rest
  */
 class ActiveQuery extends Component implements ActiveQueryInterface {
 	/**
@@ -40,15 +41,6 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 		'currPage'     => 'X-Pagination-Current-Page',
 		'perPageCount' => 'X-Pagination-Per-Page',
 		'links'        => 'Link',
-	];
-	/**
-	 * Response unserializer class
-	 * @var array|object
-	 */
-	public $unserializers = [
-		Client::FORMAT_JSON => [
-			'class' => 'simialbi\yii2\rest\JsonUnserializer'
-		]
 	];
 	/**
 	 * HTTP client that performs HTTP requests
@@ -132,7 +124,6 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 	 * @param array $config
 	 */
 	public function __construct($modelClass, $config = []) {
-//		$modelClass::staticInit();
 		$this->modelClass              = $modelClass;
 		$this->_collectionEnvelope     = $modelClass::$collectionEnvelope;
 		$this->_paginationEnvelope     = $modelClass::$paginationEnvelope;
@@ -163,9 +154,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 		return $this->populate(
 			$this->request('get',
 				$this->getUrl(self::URL_COLLECTION),
-				[
-					'query' => $this->buildQueryParams()
-				]
+				$this->buildQueryParams()
 			)
 		);
 	}
@@ -178,10 +167,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 		$model = $this->populate(
 			$this->request('get',
 				$this->getUrl(self::URL_COLLECTION),
-				[
-					'query'         => $this->buildQueryParams(),
-					$this->limitKey => 1
-				]
+				$this->buildQueryParams()
 			),
 			false
 		);
@@ -207,9 +193,8 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 		}
 
 		// try to get count by HEAD request
-		$count = $this->request('head', $this->getUrl(self::URL_COLLECTION), [
-			'query' => $this->buildQueryParams()
-		])->headers->get($this->responseHeaders['totalCount']);
+		$count = $this->request('head', $this->getUrl(self::URL_COLLECTION), $this->buildQueryParams())
+			->headers->get($this->responseHeaders['totalCount']);
 
 		// REST server not allow HEAD query and X-Total header is empty
 		if ($count === '' && $this->_paginationEnvelope) {
@@ -238,8 +223,9 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 	 * @inheritdoc
 	 */
 	public function update(ActiveRecord $model) {
+		$this->where($model->getPrimaryKey(true));
 		return $this->populate(
-			$this->request('put', $this->getUrl(self::URL_ELEMENT, $model->getPrimaryKey()), $model->getAttributes()),
+			$this->request('put', $this->getUrl(self::URL_ELEMENT), $model->getAttributes()),
 			false
 		);
 	}
@@ -256,8 +242,8 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 	/**
 	 * @inheritdoc
 	 */
-	public function where(array $conditions) {
-		$this->_where = $conditions;
+	public function where(array $condition) {
+		$this->_where = $condition;
 
 		return $this;
 	}
@@ -444,44 +430,32 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 	 * with check base url trailing slash
 	 *
 	 * @param string $type api|collection|element
-	 * @param string $id
 	 *
 	 * @return string
 	 */
-	private function getUrl($type = 'base', $id = null) {
+	private function getUrl($type = 'base') {
 		$modelClass = $this->modelClass;
 		$collection = $modelClass::getResourceName();
 
+		$url = rtrim($modelClass::getApiUrl(), '/').'/';
+
 		switch ($type) {
 			case self::URL_API:
-				return $this->trailingSlash($modelClass::getApiUrl());
+				return $url;
 				break;
 			case self::URL_COLLECTION:
-				return $this->trailingSlash($collection, false);
-				break;
 			case self::URL_ELEMENT:
-				return $this->trailingSlash($collection).$this->trailingSlash($id, false);
+				$primaryKey = $modelClass::primaryKey();
+				$url .= $url.Inflector::pluralize($collection);
+				if (count($primaryKey) === 1 && isset($this->_where[$primaryKey[0]]) && !empty($this->_where[$primaryKey[0]])) {
+					$url .= '/'.$this->_where[$primaryKey[0]];
+				}
+
+				return $url;
 				break;
 		}
 
 		return '';
-	}
-
-	/**
-	 * Check trailing slash
-	 * if $add - add trailing slash
-	 * if not $add - remove trailing slash
-	 *
-	 * @param $string
-	 * @param boolean $add
-	 *
-	 * @return string
-	 */
-	private function trailingSlash($string, $add = true) {
-
-		return substr($string, -1) === '/'
-			? ($add ? $string : substr($string, 0, strlen($string) - 1))
-			: ($add ? $string.'/' : $string);
 	}
 
 	/**

@@ -2,9 +2,9 @@
 
 namespace simialbi\yii2\rest;
 
+use yii\base\DynamicModel;
 use yii\base\InvalidConfigException;
 use yii\base\InvalidParamException;
-use yii\base\Model;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
@@ -14,7 +14,7 @@ use yii\helpers\StringHelper;
  *
  * @package chsergey\rest
  */
-abstract class ActiveRecord extends Model implements ActiveRecordInterface {
+class ActiveRecord extends DynamicModel implements ActiveRecordInterface {
 	/**
 	 * Url to REST API without resource name with trailing slash
 	 * Resource name will be added as postfix
@@ -55,16 +55,6 @@ abstract class ActiveRecord extends Model implements ActiveRecordInterface {
 	public static $offsetKey = 'page';
 
 	/**
-	 * @var array primary key name(s)
-	 */
-	protected static $_primaryKey = [];
-
-	/**
-	 * @var array allowed attributes
-	 */
-	protected static $_validAttributes = [];
-
-	/**
 	 * Model errors
 	 * @var array
 	 */
@@ -81,7 +71,7 @@ abstract class ActiveRecord extends Model implements ActiveRecordInterface {
 	 * @return string[]
 	 */
 	public static function primaryKey() {
-		return static::$_primaryKey;
+		throw new InvalidConfigException(__METHOD__." needs to be overridden");
 	}
 
 	/**
@@ -149,30 +139,6 @@ abstract class ActiveRecord extends Model implements ActiveRecordInterface {
 	}
 
 	/**
-	 * Constructor.
-	 * The default implementation does two things:
-	 *
-	 * - Initializes the object with the given configuration `$config`.
-	 * - Call [[init()]].
-	 *
-	 * If this method is overridden in a child class, it is recommended that
-	 *
-	 * - the last parameter of the constructor is a configuration array, like `$config` here.
-	 * - call the parent implementation at the end of the constructor.
-	 *
-	 * @param array $attributes name-value pairs initial attribute values
-	 * @param array $config name-value pairs that will be used to initialize the object properties
-	 */
-	public function __construct(array $attributes = [], array $config = []) {
-		foreach ($attributes as $key => $value) {
-			if ($this->hasAttribute($key)) {
-				$this->setAttribute($key, $value);
-			}
-		}
-		parent::__construct($config);
-	}
-
-	/**
 	 * @inheritdoc
 	 */
 	public function getPrimaryKey($asArray = false) {
@@ -202,13 +168,6 @@ abstract class ActiveRecord extends Model implements ActiveRecordInterface {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function attributes() {
-		return static::$_validAttributes;
 	}
 
 	/**
