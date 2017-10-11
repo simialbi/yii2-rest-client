@@ -26,11 +26,6 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 	 */
 	public $dataType = Client::FORMAT_JSON;
 	/**
-	 * Headers for requests
-	 * @var array
-	 */
-	public $requestHeaders = [];
-	/**
 	 * Wildcard for response headers object
 	 * @see Query::count()
 	 * @var array
@@ -67,6 +62,10 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 	 * @var string
 	 */
 	public $offsetKey;
+	/**
+	 * @var string name of the attribute that handles filter value.
+	 */
+	public $filterAttributeName = 'filter';
 	/**
 	 * Model class envelope
 	 * @var string
@@ -405,11 +404,13 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 	 * @return array
 	 */
 	private function buildQueryParams() {
-		$query = [];
+		$query = [
+			$this->filterAttributeName => []
+		];
 
 		$this->_where = is_array($this->_where) ? $this->_where : [];
 		foreach ($this->_where as $key => $val) {
-			$query[$key] = is_numeric($val) ? (int) $val : $val;
+			$query[$this->filterAttributeName][$key] = is_numeric($val) ? (int) $val : $val;
 		}
 
 		if (count($this->_select)) {
