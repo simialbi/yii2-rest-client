@@ -1,0 +1,38 @@
+{
+	"name": "simialbi/yii2-rest-client",
+	"version": "0.1.0",
+	"description": "REST client (AR-like model) for Yii Framework 2.0 (via yii2-http-client, extends  chsergey/yii2-rest-client)",
+	"keywords": [
+		"yii2",
+		"rest",
+		"client",
+		"model",
+		"active record"
+	],
+	"license": "MIT",
+	"authors": [
+		{
+			"name": "chsergey",
+			"email": "chsergey@chsergey.ru"
+		},
+		{
+			"name": "simialbi",
+			"email": "simi.albi@gmail.com"
+		}
+	],
+	"support": {
+		"source": "https://github.com/chsergey/yii2-rest-client",
+		"issues": "https://github.com/chsergey/yii2-rest-client/issues"
+	},
+	"minimum-stability": "beta",
+	"require": {
+		"php": ">=5.5.0",
+		"yiisoft/yii2": ">=2.0.5",
+		"yiisoft/yii2-httpclient": ">=2.0.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"simialbi\\yii2\\rest\\": ""
+		}
+	}
+}
