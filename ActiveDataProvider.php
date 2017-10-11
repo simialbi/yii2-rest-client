@@ -12,7 +12,7 @@ use yii\data\BaseDataProvider;
  */
 class ActiveDataProvider extends BaseDataProvider {
 	/**
-	 * @var ActiveActiveQuery
+	 * @var ActiveQuery
 	 */
 	public $query;
 

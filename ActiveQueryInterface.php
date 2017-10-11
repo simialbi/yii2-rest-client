@@ -64,7 +64,7 @@ interface ActiveQueryInterface {
 	 *
 	 * @param array $fields
 	 *
-	 * @return ActiveActiveQuery
+	 * @return ActiveQuery
 	 */
 	public function select(array $fields);
 
@@ -73,7 +73,7 @@ interface ActiveQueryInterface {
 	 *
 	 * @param array $conditions
 	 *
-	 * @return ActiveActiveQuery
+	 * @return ActiveQuery
 	 */
 	public function where(array $conditions);
 
@@ -82,7 +82,7 @@ interface ActiveQueryInterface {
 	 *
 	 * @param int $limit
 	 *
-	 * @return ActiveActiveQuery
+	 * @return ActiveQuery
 	 */
 	public function limit($limit);
 
@@ -91,7 +91,7 @@ interface ActiveQueryInterface {
 	 *
 	 * @param int $offset
 	 *
-	 * @return ActiveActiveQuery
+	 * @return ActiveQuery
 	 */
 	public function offset($offset);
 }

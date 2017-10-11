@@ -42,7 +42,7 @@ interface ActiveRecordInterface {
 
 	/**
 	 * Create instance of QueryInterface
-	 * @return ActiveActiveQuery
+	 * @return ActiveQuery
 	 */
 	public static function find();
 

@@ -17,7 +17,7 @@ use yii\web\ServerErrorHttpException;
  *
  * @package chsergey\rest
  */
-class ActiveActiveQuery extends Component implements ActiveQueryInterface {
+class ActiveQuery extends Component implements ActiveQueryInterface {
 	/**
 	 * Data type for requests and responses
 	 * Required.
@@ -487,7 +487,7 @@ class ActiveActiveQuery extends Component implements ActiveQueryInterface {
 	/**
 	 * Mark query as subquery to prevent queries recursion
 	 * @see count()
-	 * @return ActiveActiveQuery
+	 * @return ActiveQuery
 	 */
 	private function setSubQueryFlag() {
 		$this->_subQuery = true;

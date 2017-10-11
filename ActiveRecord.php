@@ -105,7 +105,7 @@ abstract class ActiveRecord extends Model implements ActiveRecordInterface {
 	 * @throws \yii\base\InvalidConfigException
 	 */
 	public static function find() {
-		return \Yii::createObject(ActiveActiveQuery::className(), [get_called_class()]);
+		return \Yii::createObject(ActiveQuery::className(), [get_called_class()]);
 	}
 
 	/**
