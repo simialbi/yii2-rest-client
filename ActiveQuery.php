@@ -223,6 +223,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 	 */
 	public function update(ActiveRecord $model) {
 		$this->where($model->getPrimaryKey(true));
+
 		return $this->populate(
 			$this->request('put', $this->getUrl(self::URL_ELEMENT), $model->getAttributes()),
 			false
@@ -447,7 +448,7 @@ class ActiveQuery extends Component implements ActiveQueryInterface {
 			case self::URL_COLLECTION:
 			case self::URL_ELEMENT:
 				$primaryKey = $modelClass::primaryKey();
-				$url .= $url.Inflector::pluralize($collection);
+				$url        .= Inflector::pluralize($collection);
 				if (count($primaryKey) === 1 && isset($this->_where[$primaryKey[0]]) && !empty($this->_where[$primaryKey[0]])) {
 					$url .= '/'.$this->_where[$primaryKey[0]];
 				}

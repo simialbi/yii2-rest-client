@@ -1,34 +1,33 @@
-REST Client for Yii 2 (ActiveRecord-like model)
-===============================================
-[![Latest Stable Version](https://poser.pugx.org/chsergey/yii2-rest-client/v/stable)](https://packagist.org/packages/chsergey/yii2-rest-client) [![Total Downloads](https://poser.pugx.org/chsergey/yii2-rest-client/downloads)](https://packagist.org/packages/chsergey/yii2-rest-client) [![Latest Unstable Version](https://poser.pugx.org/chsergey/yii2-rest-client/v/unstable)](https://packagist.org/packages/chsergey/yii2-rest-client) [![License](https://poser.pugx.org/chsergey/yii2-rest-client/license)](https://packagist.org/packages/chsergey/yii2-rest-client)
-[![Code Climate](https://codeclimate.com/github/chsergey/yii2-rest-client/badges/gpa.svg)](https://codeclimate.com/github/chsergey/yii2-rest-client)
-
+# REST Client for Yii 2 (ActiveRecord-like model)
 This extension provides an interface to work with RESTful API via ActiveRecord-like model in Yii 2.
+It is based on [chsergey/yii2-rest-client](https://github.com/chsergey/yii2-rest-client).
 
-For HTTP requests thanks to [GuzzleHttp](https://packagist.org/packages/guzzlehttp/guzzle)
+## Resources
+ * [yii2-httpclient](https://github.com/yiisoft/yii2-httpclient)
 
-### Welcome to PR
+## Installation
 
-Installation
-------------
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
 
 Either run
 
 ```
-php composer.phar require --prefer-dist chsergey/yii2-rest-client:0.1.0
+$ php composer.phar require --prefer-dist simialbi/yii2-rest-client
 ```
 
 or add
 
 ```
-"chsergey/yii2-rest-client": "0.1.0"
+"simialbi/yii2-rest-client": "*"
 ```
 
-to the `require` section of your composer.json.
+to the `require` section of your `composer.json`.
 
-Usage
------
+## Usage
+ * [Quick start](https://github.com/chsergey/yii2-rest-client/blob/master/docs/quickStart.md)
+ * [Documentation](https://github.com/chsergey/yii2-rest-client/blob/master/docs/README.md)
 
-* [Quick start](docs/quickStart.md)
-* [Documentation](docs/README.md)
+
+## License
+
+**yii2-rest-client** is released under MIT license. See bundled [LICENSE](LICENSE) for details.
