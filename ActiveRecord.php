@@ -12,7 +12,7 @@ use yii\helpers\StringHelper;
 /**
  * Class Model
  *
- * @package chsergey\rest
+ * @package simialbi\yii2\rest
  */
 class ActiveRecord extends DynamicModel implements ActiveRecordInterface {
 	/**
@@ -21,17 +21,20 @@ class ActiveRecord extends DynamicModel implements ActiveRecordInterface {
 	 * @var string
 	 */
 	public static $apiUrl;
+
 	/**
 	 * REST response data envelope, i.e. 'data'
 	 *
 	 * @var string
 	 */
 	public static $collectionEnvelope;
+
 	/**
 	 * REST response pagination envelope, i.e. 'pagination'
 	 * @var array
 	 */
 	public static $paginationEnvelope;
+
 	/**
 	 * REST response pagination envelope keys mapping
 	 * @var array
@@ -43,11 +46,13 @@ class ActiveRecord extends DynamicModel implements ActiveRecordInterface {
 		'perPageCount' => 'limit',
 		'links'        => 'links',
 	];
+
 	/**
 	 * Request LIMIT param name
 	 * @var string
 	 */
 	public static $limitKey = 'per-page';
+
 	/**
 	 * Request OFFSET param name
 	 * @var string
@@ -64,7 +69,21 @@ class ActiveRecord extends DynamicModel implements ActiveRecordInterface {
 	 * Model attributes with values
 	 * @var array
 	 */
-	private $_attributes = [];
+	protected $_attributes = [];
+
+	/**
+	 * @inheritdoc
+	 */
+	public function __construct(array $attributes = [], array $config = []) {
+		foreach ($attributes as $name => $value) {
+			if (is_int($name)) {
+				$this->_attributes[$value] = null;
+			} else {
+				$this->_attributes[$name] = $value;
+			}
+		}
+		parent::__construct($attributes, $config);
+	}
 
 	/**
 	 * @inheritdoc
@@ -135,7 +154,7 @@ class ActiveRecord extends DynamicModel implements ActiveRecordInterface {
 			}
 		}
 
-		return $query->andWhere($condition);
+		return $query->where($condition);
 	}
 
 	/**
