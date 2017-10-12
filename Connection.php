@@ -20,13 +20,12 @@ use Yii;
 
 /**
  * Class Connection
- * @package apexwire\restclient
  *
  * Example configuration:
  * ```php
  * 'components' => [
  *     'restclient' => [
- *         'class' => 'apexwire\restclient\Connection',
+ *         'class' => 'simialbi\yii2\rest\Connection',
  *         'config' => [
  *             'base_uri' => 'https://api.site.com/',
  *         ],

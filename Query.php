@@ -13,7 +13,6 @@ use Yii;
 
 /**
  * Class Query
- * @package apexwire\restclient
  */
 class Query extends \yii\db\Query implements QueryInterface {
 	/**
@@ -42,8 +41,10 @@ class Query extends \yii\db\Query implements QueryInterface {
 
 	/**
 	 * Creates a DB command that can be used to execute this query.
+	 *
 	 * @param Connection $db the connection used to generate the statement.
 	 * If this parameter is not given, the `rest` application component will be used.
+	 *
 	 * @return Command the created DB command instance.
 	 */
 	public function createCommand($db = null) {

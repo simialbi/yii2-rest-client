@@ -15,7 +15,6 @@ use yii\db\ActiveRelationTrait;
 
 /**
  * Class RestQuery
- * @package apexwire\restclient
  */
 class ActiveQuery extends Query implements ActiveQueryInterface {
 	use ActiveQueryTrait;
@@ -160,6 +159,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface {
 		$row = parent::one($db);
 		if ($row !== false) {
 			$models = $this->populate(isset($row[0]) ? $row : [$row]);
+
 			return reset($models) ?: null;
 		}
 

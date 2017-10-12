@@ -14,7 +14,6 @@ use yii\helpers\ArrayHelper;
 
 /**
  * Class QueryBuilder builds an HiActiveResource query based on the specification given as a [[Query]] object.
- * @package apexwire\restclient
  */
 class QueryBuilder extends \yii\db\QueryBuilder {
 	/**

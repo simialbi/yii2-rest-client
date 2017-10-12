@@ -13,7 +13,9 @@ use yii\helpers\Inflector;
 
 /**
  * Class Command class implements the API for accessing REST API.
- * @package apexwire\restclient
+ *
+ * @property string $rawUrl The raw URL with parameter values inserted into the corresponding placeholders.
+ * This property is read-only.
  */
 class Command extends Component {
 	/**
@@ -35,6 +37,18 @@ class Command extends Component {
 	 * @var array
 	 */
 	public $queryParams;
+
+	/**
+	 * Returns the raw url by inserting parameter values into the corresponding placeholders.
+	 * Note that the return value of this method should mainly be used for logging purpose.
+	 * It is likely that this method returns an invalid URL due to improper replacement of parameter placeholders.
+	 * @return string the raw URL with parameter values inserted into the corresponding placeholders.
+	 */
+	public function getRawUrl() {
+		$rawUrl = $this->db->handler->get($this->pathInfo, $this->queryParams)->fullUrl;
+
+		return $rawUrl;
+	}
 
 	/**
 	 * @return mixed

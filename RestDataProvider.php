@@ -14,7 +14,6 @@ use yii\data\ActiveDataProvider;
 
 /**
  * Class RestDataProvider
- * @package apexwire\restclient
  */
 class RestDataProvider extends ActiveDataProvider {
 	/**

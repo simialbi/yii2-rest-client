@@ -17,7 +17,6 @@ use Yii;
 
 /**
  * Class ActiveRecord
- * @package apexwire\restclient
  */
 class ActiveRecord extends BaseActiveRecord {
 	/**
@@ -109,6 +108,7 @@ class ActiveRecord extends BaseActiveRecord {
 	public function insert($runValidation = true, $attributes = null) {
 		if ($runValidation && !$this->validate($attributes)) {
 			Yii::info('Model not inserted due to validation error.', __METHOD__);
+
 			return false;
 		}
 
@@ -117,8 +117,10 @@ class ActiveRecord extends BaseActiveRecord {
 
 	/**
 	 * Inserts an ActiveRecord.
+	 *
 	 * @param array $attributes list of attributes that need to be saved. Defaults to `null`,
 	 * meaning all attributes that are loaded from DB will be saved.
+	 *
 	 * @return boolean whether the record is inserted successfully.
 	 */
 	protected function insertInternal($attributes) {
@@ -146,6 +148,7 @@ class ActiveRecord extends BaseActiveRecord {
 	public function update($runValidation = true, $attributeNames = null) {
 		if ($runValidation && !$this->validate($attributeNames)) {
 			Yii::info('Model not inserted due to validation error.', __METHOD__);
+
 			return false;
 		}
 
@@ -162,11 +165,12 @@ class ActiveRecord extends BaseActiveRecord {
 		$values = $this->getDirtyAttributes($attributes);
 		if (empty($values)) {
 			$this->afterSave(false, $values);
+
 			return 0;
 		}
 
 		$command = static::getDb()->createCommand();
-		$rows = $command->update(static::modelName(), $values, $this->getOldPrimaryKey(false));
+		$rows    = $command->update(static::modelName(), $values, $this->getOldPrimaryKey(false));
 
 		$changedAttributes = [];
 		foreach ($values as $name => $value) {
@@ -186,7 +190,7 @@ class ActiveRecord extends BaseActiveRecord {
 		$result = false;
 		if ($this->beforeDelete()) {
 			$command = static::getDb()->createCommand();
-			$result = $command->delete(static::modelName(), $this->getOldPrimaryKey());
+			$result  = $command->delete(static::modelName(), $this->getOldPrimaryKey());
 
 			$this->setOldAttributes(null);
 			$this->afterDelete();
