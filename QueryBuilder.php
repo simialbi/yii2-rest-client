@@ -78,7 +78,7 @@ class QueryBuilder extends \yii\db\QueryBuilder {
 		$clauses = array_merge($clauses, $this->buildLimit($query->limit, $query->offset));
 
 		foreach ($clauses as $key => $clause) {
-			if (empty($clause)) {
+			if ($clause === "" || (is_array($clause) && empty($clause)) || null === $clause) {
 				unset($clauses[$key]);
 			}
 		}

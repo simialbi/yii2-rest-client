@@ -87,6 +87,8 @@ class Connection extends Component {
 			throw new InvalidConfigException('The `baseUrl` config option must be set');
 		}
 
+		$this->baseUrl = rtrim($this->baseUrl, '/');
+
 		parent::init();
 	}
 
