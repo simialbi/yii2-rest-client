@@ -1,80 +1,37 @@
 <?php
+/**
+ * Created by PhpStorm.
+ * User: simialbi
+ * Date: 12.10.2017
+ * Time: 10:34
+ */
 
 namespace simialbi\yii2\rest;
 
-use yii\base\DynamicModel;
 use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
-use yii\helpers\ArrayHelper;
+use yii\base\NotSupportedException;
+use yii\db\BaseActiveRecord;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
+use Yii;
 
 /**
- * Class Model
- *
- * @package simialbi\yii2\rest
+ * Class ActiveRecord
+ * @package apexwire\restclient
  */
-class ActiveRecord extends DynamicModel implements ActiveRecordInterface {
+class ActiveRecord extends BaseActiveRecord {
 	/**
-	 * Url to REST API without resource name with trailing slash
-	 * Resource name will be added as postfix
-	 * @var string
-	 */
-	public static $apiUrl;
-
-	/**
-	 * REST response data envelope, i.e. 'data'
-	 *
-	 * @var string
-	 */
-	public static $collectionEnvelope;
-
-	/**
-	 * REST response pagination envelope, i.e. 'pagination'
-	 * @var array
-	 */
-	public static $paginationEnvelope;
-
-	/**
-	 * REST response pagination envelope keys mapping
-	 * @var array
-	 */
-	public static $paginationEnvelopeKeys = [
-		'totalCount'   => 'total',
-		'pageCount'    => 'pages',
-		'currPage'     => 'offset',
-		'perPageCount' => 'limit',
-		'links'        => 'links',
-	];
-
-	/**
-	 * Request LIMIT param name
-	 * @var string
-	 */
-	public static $limitKey = 'per-page';
-
-	/**
-	 * Request OFFSET param name
-	 * @var string
-	 */
-	public static $offsetKey = 'page';
-
-	/**
-	 * Model errors
-	 * @var array
-	 */
-	protected $_errors = [];
-
-	/**
-	 * Model attributes with values
-	 * @var array
+	 * @var array attribute values indexed by attribute names
 	 */
 	protected $_attributes = [];
 
 	/**
-	 * @inheritdoc
+	 * Constructors.
+	 *
+	 * @param array $attributes the dynamic attributes (name-value pairs, or names) being defined
+	 * @param array $config the configuration array to be applied to this object.
 	 */
-	public function __construct(array $attributes = [], array $config = []) {
+	public function __construct(array $attributes = [], $config = []) {
 		foreach ($attributes as $name => $value) {
 			if (is_int($name)) {
 				$this->_attributes[$value] = null;
@@ -82,218 +39,166 @@ class ActiveRecord extends DynamicModel implements ActiveRecordInterface {
 				$this->_attributes[$name] = $value;
 			}
 		}
-		parent::__construct($attributes, $config);
+		parent::__construct($config);
 	}
 
 	/**
 	 * @inheritdoc
-	 * @return string[]
+	 */
+	public static function instantiate($row) {
+		return new static($row);
+	}
+
+	/**
+	 * @return null|Connection
+	 * @throws InvalidConfigException
+	 */
+	public static function getDb() {
+		$connection = Yii::$app->get(Connection::getDriverName());
+
+		/* @var $connection Connection */
+		return $connection;
+	}
+
+	/**
+	 * @inheritdoc
+	 *
+	 * @return ActiveQuery
+	 */
+	public static function find($options = []) {
+		$config = [
+			'class'   => 'simialbi\yii2\rest\ActiveQuery',
+			'options' => $options
+		];
+
+		/* @var $query ActiveQuery */
+		$query = Yii::createObject($config, [get_called_class()]);
+
+		return $query;
+	}
+
+	/**
+	 * Declares the name of the url path associated with this AR class.
+	 * By default this method returns the class name as the path by calling [[Inflector::camel2id()]].
+	 * For example:
+	 * `Customer` becomes `customer`, and `OrderItem` becomes `order-item`. You may override this method
+	 * if the path is not named after this convention.
+	 * @return string the url path
+	 */
+	public static function modelName() {
+		return Inflector::pluralize(Inflector::camel2id(StringHelper::basename(get_called_class()), '-'));
+	}
+
+	/**
+	 * @inheritdoc
 	 */
 	public static function primaryKey() {
-		throw new InvalidConfigException(__METHOD__." needs to be overridden");
-	}
-
-	/**
-	 * @inheritdoc
-	 * @return string
-	 */
-	public static function getApiUrl() {
-		return static::$apiUrl;
-	}
-
-	/**
-	 * @inheritdoc
-	 * @return string
-	 */
-	public static function getResourceName() {
-		return Inflector::camel2id(StringHelper::basename(get_called_class()), '_');
-	}
-
-	/**
-	 * @inheritdoc
-	 * @throws \yii\base\InvalidConfigException
-	 */
-	public static function find() {
-		return \Yii::createObject(ActiveQuery::className(), [get_called_class()]);
+		new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public static function findAll(array $condition) {
-		return static::findByCondition($condition)->all();
+	public function attributes() {
+		return array_keys($this->_attributes);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
-	public static function findOne($condition) {
-		return static::findByCondition($condition)->all();
-	}
-
-	/**
-	 * Finds ActiveRecord instance(s) by the given condition.
-	 * This method is internally called by [[findOne()]] and [[findAll()]].
-	 *
-	 * @param mixed $condition please refer to [[findOne()]] for the explanation of this parameter
-	 *
-	 * @return ActiveQueryInterface the newly created [[ActiveQueryInterface|ActiveQuery]] instance.
-	 * @throws InvalidConfigException if there is no primary key defined
-	 * @internal
-	 */
-	protected static function findByCondition($condition) {
-		$query = static::find();
-
-		if (!ArrayHelper::isAssociative($condition)) {
-			// query by primary key
-			$primaryKey = static::primaryKey();
-			if (isset($primaryKey[0])) {
-				$condition = [$primaryKey[0] => $condition];
-			} else {
-				throw new InvalidConfigException('"'.get_called_class().'" must have a primary key.');
-			}
-		}
-
-		return $query->where($condition);
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function getPrimaryKey($asArray = false) {
-		$keys = $this->primaryKey();
-		if (!$asArray && count($keys) === 1) {
-			return isset($this->_attributes[$keys[0]]) ? $this->_attributes[$keys[0]] : null;
-		} else {
-			$values = [];
-			foreach ($keys as $name) {
-				$values[$name] = isset($this->_attributes[$name]) ? $this->_attributes[$name] : null;
-			}
-
-			return $values;
-		}
-	}
-
-	/**
-	 * @inheritdoc
-	 */
-	public function save() {
-		if (static::SCENARIO_CREATE === $this->getScenario()) {
-			return static::find()->create($this);
-		}
-
-		if (static::SCENARIO_UPDATE === $this->getScenario()) {
-			return static::find()->update($this);
-		}
-
-		return false;
-	}
-
-	/**
-	 * Returns the named attribute value.
-	 * If this record is the result of a query and the attribute is not loaded,
-	 * `null` will be returned.
-	 *
-	 * @param string $name the attribute name
-	 *
-	 * @return mixed the attribute value. `null` if the attribute is not set or does not exist.
-	 * @see hasAttribute()
-	 */
-	public function getAttribute($name) {
-		return isset($this->_attributes[$name]) ? $this->_attributes[$name] : null;
-	}
-
-	/**
-	 * Sets the named attribute value.
-	 *
-	 * @param string $name the attribute name
-	 * @param mixed $value the attribute value.
-	 *
-	 * @throws InvalidParamException if the named attribute does not exist.
-	 * @see hasAttribute()
-	 */
-	public function setAttribute($name, $value) {
-		if ($this->hasAttribute($name)) {
-			$this->_attributes[$name] = $value;
-		} else {
-			throw new InvalidParamException(get_class($this).' has no attribute named "'.$name.'".');
-		}
-	}
-
-	/**
-	 * Returns a value indicating whether the model has an attribute with the specified name.
-	 *
-	 * @param string $name the name of the attribute
-	 *
-	 * @return bool whether the model has an attribute with the specified name.
-	 */
-	public function hasAttribute($name) {
-		return isset($this->_attributes[$name]) || in_array($name, $this->attributes(), true);
-	}
-
-	/**
-	 * PHP getter magic method.
-	 * This method is overridden so that attributes and related objects can be accessed like properties.
-	 *
-	 * @param string $name property name
-	 *
-	 * @throws \yii\base\InvalidParamException if relation name is wrong
-	 * @return mixed property value
-	 * @see getAttribute()
-	 */
-	public function __get($name) {
-		if (isset($this->_attributes[$name]) || array_key_exists($name, $this->_attributes)) {
-			return $this->_attributes[$name];
-		} elseif ($this->hasAttribute($name)) {
-			return null;
-		} else {
-			return parent::__get($name);
-		}
-	}
-
-	/**
-	 * PHP setter magic method.
-	 * This method is overridden so that AR attributes can be accessed like properties.
-	 *
-	 * @param string $name property name
-	 * @param mixed $value property value
-	 */
-	public function __set($name, $value) {
-		if ($this->hasAttribute($name)) {
-			$this->_attributes[$name] = $value;
-		} else {
-			parent::__set($name, $value);
-		}
-	}
-
-	/**
-	 * Checks if a property value is null.
-	 * This method overrides the parent implementation by checking if the named attribute is `null` or not.
-	 *
-	 * @param string $name the property name or the event name
-	 *
-	 * @return bool whether the property value is null
-	 */
-	public function __isset($name) {
-		try {
-			return $this->__get($name) !== null;
-		} catch (\Exception $e) {
+	public function insert($runValidation = true, $attributes = null) {
+		if ($runValidation && !$this->validate($attributes)) {
+			Yii::info('Model not inserted due to validation error.', __METHOD__);
 			return false;
 		}
+
+		return $this->insertInternal($attributes);
 	}
 
 	/**
-	 * Sets a component property to be null.
-	 * This method overrides the parent implementation by clearing
-	 * the specified attribute value.
-	 *
-	 * @param string $name the property name or the event name
+	 * Inserts an ActiveRecord.
+	 * @param array $attributes list of attributes that need to be saved. Defaults to `null`,
+	 * meaning all attributes that are loaded from DB will be saved.
+	 * @return boolean whether the record is inserted successfully.
 	 */
-	public function __unset($name) {
-		if ($this->hasAttribute($name)) {
-			unset($this->_attributes[$name]);
-		} else {
-			parent::__unset($name);
+	protected function insertInternal($attributes) {
+		if (!$this->beforeSave(true)) {
+			return false;
 		}
+		$values = $this->getDirtyAttributes($attributes);
+		if (false === ($data = static::getDb()->createCommand()->insert(static::modelName(), $values))) {
+			return false;
+		}
+		foreach ($data as $name => $value) {
+			$this->setAttribute($name, $value);
+		}
+
+		$changedAttributes = array_fill_keys(array_keys($values), null);
+		$this->setOldAttributes($values);
+		$this->afterSave(true, $changedAttributes);
+
+		return true;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function update($runValidation = true, $attributeNames = null) {
+		if ($runValidation && !$this->validate($attributeNames)) {
+			Yii::info('Model not inserted due to validation error.', __METHOD__);
+			return false;
+		}
+
+		return $this->updateInternal($attributeNames);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	protected function updateInternal($attributes = null) {
+		if (!$this->beforeSave(false)) {
+			return false;
+		}
+		$values = $this->getDirtyAttributes($attributes);
+		if (empty($values)) {
+			$this->afterSave(false, $values);
+			return 0;
+		}
+
+		$command = static::getDb()->createCommand();
+		$rows = $command->update(static::modelName(), $values, $this->getOldPrimaryKey(false));
+
+		$changedAttributes = [];
+		foreach ($values as $name => $value) {
+			$changedAttributes[$name] = $this->getOldAttribute($name);
+			$this->setOldAttribute($name, $value);
+		}
+		$this->afterSave(false, $changedAttributes);
+
+		return $rows;
+	}
+
+
+	/**
+	 * @inheritdoc
+	 */
+	public function delete() {
+		$result = false;
+		if ($this->beforeDelete()) {
+			$command = static::getDb()->createCommand();
+			$result = $command->delete(static::modelName(), $this->getOldPrimaryKey());
+
+			$this->setOldAttributes(null);
+			$this->afterDelete();
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function unlinkAll($name, $delete = false) {
+		throw new NotSupportedException('unlinkAll() is not supported by RestClient, use unlink() instead.');
 	}
 }

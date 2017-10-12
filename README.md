@@ -1,12 +1,12 @@
 # REST Client for Yii 2 (ActiveRecord-like model)
 This extension provides an interface to work with RESTful API via ActiveRecord-like model in Yii 2.
-It is based on [chsergey/yii2-rest-client](https://github.com/chsergey/yii2-rest-client).
+It is based on [ApexWire's](https://github.com/ApexWire) [yii2-restclient](https://github.com/ApexWire/yii2-restclient).
 
 ## Resources
- * [yii2-httpclient](https://github.com/yiisoft/yii2-httpclient)
+ * [yii2-restclient](https://github.com/ApexWire/yii2-restclient)
+ * [Yii2 HiArt](https://github.com/hiqdev/yii2-hiart).
 
 ## Installation
-
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
 
 Either run
@@ -23,11 +23,50 @@ or add
 
 to the `require` section of your `composer.json`.
 
+## Configuration
+To use this extension, configure restclient component in your application config:
+
+```php
+    'components' => [
+        'restclient' => [
+            'class'   => 'simialbi\yii2\rest\Connection',
+            'baseUrl' => 'https://api.site.com/'
+        ],
+    ],
+```
+
 ## Usage
- * [Quick start](https://github.com/chsergey/yii2-rest-client/blob/master/docs/quickStart.md)
- * [Documentation](https://github.com/chsergey/yii2-rest-client/blob/master/docs/README.md)
+Define your Model
+
+```php
+<?php
+
+namespace app\models;
+
+use simialbi\yii2\rest\ActiveRecord;
+
+class MyModel extends ActiveRecord {
+	/**
+	 * @inheritdoc
+	 */
+	public static function modelName() {
+		return 'my-super-model-name';
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public static function primaryKey() {
+		return ['id'];
+	}
+}
+```
 
 
 ## License
 
 **yii2-rest-client** is released under MIT license. See bundled [LICENSE](LICENSE) for details.
+
+## Acknowledgments
+ * [ApexWire's](https://github.com/ApexWire) [yii2-restclient](https://github.com/ApexWire/yii2-restclient)
+ * [Yii2 HiArt](https://github.com/hiqdev/yii2-hiart).
