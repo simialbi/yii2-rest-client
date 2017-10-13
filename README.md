@@ -28,7 +28,7 @@ To use this extension, configure restclient component in your application config
 
 ```php
     'components' => [
-        'restclient' => [
+        'rest' => [
             'class'   => 'simialbi\yii2\rest\Connection',
             'baseUrl' => 'https://api.site.com/'
         ],
@@ -62,6 +62,7 @@ class MyModel extends ActiveRecord {
 }
 ```
 
+The usage after define a model is the same like [yii\db\ActiveRecord](http://www.yiiframework.com/doc-2.0/guide-db-active-record.html)
 
 ## License
 
