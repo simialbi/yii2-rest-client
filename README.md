@@ -5,6 +5,7 @@ It is based on [ApexWire's](https://github.com/ApexWire) [yii2-restclient](https
 ## Resources
  * [yii2-restclient](https://github.com/ApexWire/yii2-restclient)
  * [Yii2 HiArt](https://github.com/hiqdev/yii2-hiart).
+ * [\yii\db\ActiveRecord](http://www.yiiframework.com/doc-2.0/guide-db-active-record.html)
 
 ## Installation
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
