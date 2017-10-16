@@ -20,14 +20,14 @@ use Yii;
  */
 class ActiveRecord extends BaseActiveRecord {
 	/**
-	 * @var array attribute values indexed by attribute names
-	 */
-	protected $_attributes = [];
-
-	/**
 	 * @var boolean if in construction process (modifies behavior of hasAttribute method)
 	 */
 	private $_isConstructing = false;
+
+	/**
+	 * @var array attribute names indexed array of null values
+	 */
+	private $_attributeNames = [];
 
 	/**
 	 * Constructors.
@@ -41,7 +41,7 @@ class ActiveRecord extends BaseActiveRecord {
 			if (is_int($name)) {
 				$this->setAttribute($value, null);
 			} else {
-				$this->setAttribute($value, null);
+				$this->setAttribute($name, $value);
 			}
 		}
 		$this->_isConstructing = false;
@@ -60,6 +60,16 @@ class ActiveRecord extends BaseActiveRecord {
 	 */
 	public function hasAttribute($name) {
 		return $this->_isConstructing ? true : parent::hasAttribute($name);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function setAttribute($name, $value) {
+		if ($this->hasAttribute($name)) {
+			$this->_attributeNames[$name] = null;
+		}
+		parent::setAttribute($name, $value);
 	}
 
 	/**
@@ -113,7 +123,7 @@ class ActiveRecord extends BaseActiveRecord {
 	 * @inheritdoc
 	 */
 	public function attributes() {
-		return array_keys($this->_attributes);
+		return array_keys($this->_attributeNames);
 	}
 
 	/**
