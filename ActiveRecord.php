@@ -37,12 +37,23 @@ class ActiveRecord extends BaseActiveRecord {
 	 */
 	public function __construct(array $attributes = [], $config = []) {
 		$this->_isConstructing = true;
+		$setOld                = true;
+		$keys                  = $this->primaryKey();
+		foreach ($keys as $key) {
+			if (!isset($attributes[$key])) {
+				$setOld = false;
+				break;
+			}
+		}
 		foreach ($attributes as $name => $value) {
 			if (is_int($name)) {
 				$this->setAttribute($value, null);
 			} else {
 				$this->setAttribute($name, $value);
 			}
+		}
+		if ($setOld) {
+			$this->setOldAttributes($attributes);
 		}
 		$this->_isConstructing = false;
 		parent::__construct($config);
