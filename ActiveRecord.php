@@ -25,19 +25,26 @@ class ActiveRecord extends BaseActiveRecord {
 	protected $_attributes = [];
 
 	/**
+	 * @var boolean if in construction process (modifies behavior of hasAttribute method)
+	 */
+	private $_isConstructing = false;
+
+	/**
 	 * Constructors.
 	 *
 	 * @param array $attributes the dynamic attributes (name-value pairs, or names) being defined
 	 * @param array $config the configuration array to be applied to this object.
 	 */
 	public function __construct(array $attributes = [], $config = []) {
+		$this->_isConstructing = true;
 		foreach ($attributes as $name => $value) {
 			if (is_int($name)) {
-				$this->_attributes[$value] = null;
+				$this->setAttribute($value, null);
 			} else {
-				$this->_attributes[$name] = $value;
+				$this->setAttribute($value, null);
 			}
 		}
+		$this->_isConstructing = false;
 		parent::__construct($config);
 	}
 
@@ -46,6 +53,13 @@ class ActiveRecord extends BaseActiveRecord {
 	 */
 	public static function instantiate($row) {
 		return new static($row);
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function hasAttribute($name) {
+		return $this->_isConstructing ? true : parent::hasAttribute($name);
 	}
 
 	/**
