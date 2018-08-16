@@ -24,7 +24,7 @@
 		"source": "https://github.com/simialbi/yii2-rest-client",
 		"issues": "https://github.com/simialbi/yii2-rest-client/issues"
 	},
-	"minimum-stability": "beta",
+	"minimum-stability": "stable",
 	"require": {
 		"php": ">=5.5.0",
 		"yiisoft/yii2": ">=2.0.5",

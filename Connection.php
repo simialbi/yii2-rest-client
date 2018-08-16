@@ -162,11 +162,7 @@ class Connection extends Component {
 	 * @return mixed response
 	 */
 	public function get($url, $data = []) {
-		try {
-			return $this->request('get', $url, $data);
-		} catch (Exception $e) {
-			return false;
-		}
+	    return $this->request('get', $url, $data);
 	}
 
 	/**
