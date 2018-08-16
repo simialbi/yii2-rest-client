@@ -1,5 +1,5 @@
 {
-	"name": "simialbi/yii2-rest-client",
+	"name": "mikolajzieba/yii2-rest-client",
 	"type": "yii2-extension",
 	"description": "REST client (AR-like model) for Yii Framework 2.0 (via yii2-http-client, extends ApexWire/yii2-restclient)",
 	"keywords": [
@@ -32,7 +32,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"simialbi\\yii2\\rest\\": ""
+			"mikolajzieba\\yii2\\rest\\": ""
 		}
 	}
 }
