@@ -238,7 +238,7 @@ class QueryBuilder extends \yii\db\QueryBuilder {
     {
         return [
             $operands[0][0] => [
-                'in' => $operands[1]
+                'in' => !empty($operands[1]) ? $operands[1] : [-1]
             ]
         ];
     }
