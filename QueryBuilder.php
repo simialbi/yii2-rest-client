@@ -242,4 +242,17 @@ class QueryBuilder extends \yii\db\QueryBuilder {
             ]
         ];
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function buildAndCondition($operator, $operands, &$params)
+    {
+        $andResult = [];
+        foreach($operands as $operand) {
+            $andResult = array_merge($andResult, $this->buildCondition($operand, $params));
+        }
+
+        return $andResult;
+    }
 }
