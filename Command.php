@@ -69,9 +69,9 @@ class Command extends Component {
 
 			if (count($pks) === 1 && isset($this->queryParams['filter'])) {
 				$primaryKey = current($pks);
-				if (isset($this->queryParams['filter'][$primaryKey])) {
-					$this->pathInfo .= '/'.$this->queryParams['filter'][$primaryKey];
-				}
+                if (isset($this->queryParams['filter'][$primaryKey]) && !is_array($this->queryParams['filter'][$primaryKey])) {
+                    $this->pathInfo .= '/'.$this->queryParams['filter'][$primaryKey];
+                }
 			}
 		}
 
