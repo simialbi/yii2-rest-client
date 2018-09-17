@@ -260,7 +260,7 @@ class Connection extends Component {
 //			], $this->responseConfig);
 			static::$_handler = new Client([
 				'baseUrl'        => $this->baseUrl,
-//				'requestConfig'  => $requestConfig,
+				'requestConfig'  => $this->requestConfig,
 //				'responseConfig' => $responseConfig
 			]);
 		}
