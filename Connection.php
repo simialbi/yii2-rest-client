@@ -236,9 +236,9 @@ class Connection extends Component {
 		$this->_response = call_user_func([$this->handler, $method], $url, $data)->send();
 		Yii::endProfile($profile, __METHOD__);
 
-		if (!$this->_response->isOk) {
-			return false;
-		}
+        if (!$this->_response->isOk) {
+            throw new RestRequestException($this->_response->getContent(), $this->_response->getStatusCode());
+        }
 
 		return $this->_response->data;
 	}
