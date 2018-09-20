@@ -15,7 +15,7 @@ class RestRequestException extends \Exception
     private $statusCode;
     private $method;
 
-    public function __construct($url, $method, $message = "", $statusCode, $code = 0, $previous = null)
+    public function __construct($url, $method, $statusCode, $message = "", $code = 0, $previous = null)
     {
         $this->url = $url;
         $this->statusCode = $statusCode;
