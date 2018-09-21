@@ -21,7 +21,7 @@ class RestRequestException extends \Exception
         $this->statusCode = $statusCode;
         $this->method = $method;
 
-        parent::__construct($this->createMessage($message), $code, $previous);
+        parent::__construct($this->createMessage($message), $this->statusCode, $previous);
     }
 
     public function getUrl()
