@@ -113,8 +113,10 @@ class Command extends Component {
 	 * @return mixed
 	 */
 	public function insert($model, $columns) {
-		$this->pathInfo = $model;
-
+        $this->pathInfo = $model;
+        if (strpos($this->pathInfo, '/') === false) {
+            $this->pathInfo = Inflector::pluralize($this->pathInfo);
+        }
 		return $this->db->post($this->pathInfo, $columns);
 	}
 
