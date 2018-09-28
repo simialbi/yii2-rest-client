@@ -109,6 +109,7 @@ class Command extends Component {
 	 * @return mixed
 	 */
 	public function insert($model, $columns) {
+        $this->pathInfo = $model;
 		return $this->db->post($this->pathInfo, $columns);
 	}
 
