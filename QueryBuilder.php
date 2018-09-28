@@ -40,6 +40,7 @@ class QueryBuilder extends \yii\db\QueryBuilder {
 	 */
 	protected $conditionBuilders = [
 		'AND' => 'buildAndCondition',
+        'IN' => 'buildInCondition'
 	];
 
 	/**
@@ -201,18 +202,14 @@ class QueryBuilder extends \yii\db\QueryBuilder {
 		}
 
 		if (isset($condition[0])) { // operator format: operator, operand 1, operand 2, ...
-			/*
-			$operator = strtoupper($condition[0]);
-			if (!isset($this->conditionBuilders[$operator])) {
-				throw new NotSupportedException($operator.' is not supported.');
-			}
-			$method = $this->conditionBuilders[$operator];
-			array_shift($condition);
+            $operator = strtoupper($condition[0]);
+            if (!isset($this->conditionBuilders[$operator])) {
+                throw new NotSupportedException($operator.' is not supported.');
+            }
+            $method = $this->conditionBuilders[$operator];
+            array_shift($condition);
 
-			return $this->$method($operator, $condition, $params);
-			/*/
-			return [];
-			//*/
+            return $this->$method($operator, $condition, $params);
 		} else { // hash format: 'column1' => 'value1', 'column2' => 'value2', ...
 			return $this->buildHashCondition($condition, $params);
 		}
@@ -221,16 +218,41 @@ class QueryBuilder extends \yii\db\QueryBuilder {
 	/**
 	 * @inheritdoc
 	 */
-	public function buildHashCondition($condition, &$params) {
-		$parts = [];
-		foreach ($condition as $attribute => $value) {
-			if (is_array($value)) { // IN condition
-				continue;
-			} else {
-				$parts[$attribute] = str_replace(array_keys($params), array_values($params), $value);
-			}
-		}
+    public function buildHashCondition($condition, &$params) {
+        $parts = [];
+        foreach ($condition as $attribute => $value) {
+            if (is_array($value)) { // IN condition
+                continue;
+            } else {
+                $parts[$attribute] = str_replace(array_keys($params), array_values($params), $value);
+            }
+        }
 
-		return $parts;
-	}
+        return $parts;
+    }
+
+    /**
+ 	 * @inheritdoc
+     */
+    public function buildInCondition($operator, $operands, &$params)
+    {
+        return [
+            $operands[0][0] => [
+                'in' => !empty($operands[1]) ? $operands[1] : [-1]
+            ]
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function buildAndCondition($operator, $operands, &$params)
+    {
+        $andResult = [];
+        foreach($operands as $operand) {
+            $andResult = array_merge($andResult, $this->buildCondition($operand, $params));
+        }
+
+        return $andResult;
+    }
 }

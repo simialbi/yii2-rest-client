@@ -157,7 +157,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface {
 	 */
 	public function one($db = null) {
 		$row = parent::one($db);
-		if ($row !== false) {
+		if ($row !== false && !empty($row)) {
 			$models = $this->populate(isset($row[0]) ? $row : [$row]);
 
 			return reset($models) ?: null;
@@ -165,4 +165,39 @@ class ActiveQuery extends Query implements ActiveQueryInterface {
 
 		return null;
 	}
+
+    public function prepare($builder)
+    {
+        if ($this->primaryModel === null) {
+            // eager loading
+//            $query = $this;
+        } else {
+            // lazy loading of a relation
+            $where = $this->where;
+
+            if ($this->via instanceof self) {
+                // via junction table
+                $viaModels = $this->via->findJunctionRows([$this->primaryModel]);
+                $this->filterByModels($viaModels);
+            } elseif (is_array($this->via)) {
+                // via relation
+                /* @var $viaQuery ActiveQuery */
+                list($viaName, $viaQuery) = $this->via;
+                if ($viaQuery->multiple) {
+                    $viaModels = $viaQuery->all();
+                    $this->primaryModel->populateRelation($viaName, $viaModels);
+                } else {
+                    $model = $viaQuery->one();
+                    $this->primaryModel->populateRelation($viaName, $model);
+                    $viaModels = $model === null ? [] : [$model];
+                }
+                $this->filterByModels($viaModels);
+            } else {
+                $this->filterByModels([$this->primaryModel]);
+            }
+        }
+
+        return $this;
+    }
+
 }

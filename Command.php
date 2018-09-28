@@ -69,9 +69,9 @@ class Command extends Component {
 
 			if (count($pks) === 1 && isset($this->queryParams['filter'])) {
 				$primaryKey = current($pks);
-				if (isset($this->queryParams['filter'][$primaryKey])) {
-					$this->pathInfo .= '/'.$this->queryParams['filter'][$primaryKey];
-				}
+                if (isset($this->queryParams['filter'][$primaryKey]) && !is_array($this->queryParams['filter'][$primaryKey])) {
+                    $this->pathInfo .= '/'.$this->queryParams['filter'][$primaryKey];
+                }
 			}
 		}
 
@@ -86,10 +86,6 @@ class Command extends Component {
 	 * @return mixed
 	 */
 	protected function queryInternal($method = 'get') {
-		if (strpos($this->pathInfo, '/') === false) {
-			$this->pathInfo = Inflector::pluralize($this->pathInfo);
-		}
-
 		return $this->db->$method($this->pathInfo, $this->queryParams);
 	}
 
@@ -113,8 +109,7 @@ class Command extends Component {
 	 * @return mixed
 	 */
 	public function insert($model, $columns) {
-		$this->pathInfo = $model;
-
+        $this->pathInfo = $model;
 		return $this->db->post($this->pathInfo, $columns);
 	}
 
