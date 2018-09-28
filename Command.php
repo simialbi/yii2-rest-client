@@ -86,10 +86,6 @@ class Command extends Component {
 	 * @return mixed
 	 */
 	protected function queryInternal($method = 'get') {
-		if (strpos($this->pathInfo, '/') === false) {
-			$this->pathInfo = Inflector::pluralize($this->pathInfo);
-		}
-
 		return $this->db->$method($this->pathInfo, $this->queryParams);
 	}
 
@@ -113,10 +109,6 @@ class Command extends Component {
 	 * @return mixed
 	 */
 	public function insert($model, $columns) {
-        $this->pathInfo = $model;
-        if (strpos($this->pathInfo, '/') === false) {
-            $this->pathInfo = Inflector::pluralize($this->pathInfo);
-        }
 		return $this->db->post($this->pathInfo, $columns);
 	}
 
