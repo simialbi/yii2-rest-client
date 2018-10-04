@@ -190,17 +190,17 @@ class QueryBuilder extends \yii\db\QueryBuilder
             'yii\db\Query' => 'yii\db\QueryExpressionBuilder',
             'yii\db\PdoValue' => 'yii\db\PdoValueBuilder',
             'yii\db\Expression' => 'yii\db\ExpressionBuilder',
-            'yii\db\conditions\ConjunctionCondition' => 'yii\db\conditions\ConjunctionConditionBuilder',
-            'yii\db\conditions\NotCondition' => 'yii\db\conditions\NotConditionBuilder',
-            'yii\db\conditions\AndCondition' => 'yii\db\conditions\ConjunctionConditionBuilder',
-            'yii\db\conditions\OrCondition' => 'yii\db\conditions\ConjunctionConditionBuilder',
-            'yii\db\conditions\BetweenCondition' => 'yii\db\conditions\BetweenConditionBuilder',
-            'yii\db\conditions\InCondition' => 'yii\db\conditions\InConditionBuilder',
-            'yii\db\conditions\LikeCondition' => 'yii\db\conditions\LikeConditionBuilder',
-            'yii\db\conditions\ExistsCondition' => 'yii\db\conditions\ExistsConditionBuilder',
-            'yii\db\conditions\SimpleCondition' => 'yii\db\conditions\SimpleConditionBuilder',
-            'yii\db\conditions\HashCondition' => 'yii\db\conditions\HashConditionBuilder',
-            'yii\db\conditions\BetweenColumnsCondition' => 'yii\db\conditions\BetweenColumnsConditionBuilder'
+            'yii\db\conditions\ConjunctionCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
+            'yii\db\conditions\NotCondition' => 'simialbi\yii2\rest\conditions\NotConditionBuilder',
+            'yii\db\conditions\AndCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
+            'yii\db\conditions\OrCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
+            'yii\db\conditions\BetweenCondition' => 'simialbi\yii2\rest\conditions\BetweenConditionBuilder',
+            'yii\db\conditions\InCondition' => 'simialbi\yii2\rest\conditions\InConditionBuilder',
+            'yii\db\conditions\LikeCondition' => 'simialbi\yii2\rest\conditions\LikeConditionBuilder',
+//            'yii\db\conditions\ExistsCondition' => 'yii\db\conditions\ExistsConditionBuilder',
+            'yii\db\conditions\SimpleCondition' => 'simialbi\yii2\rest\conditions\SimpleConditionBuilder',
+            'yii\db\conditions\HashCondition' => 'simialbi\yii2\rest\conditions\HashConditionBuilder',
+//            'yii\db\conditions\BetweenColumnsCondition' => 'yii\db\conditions\BetweenColumnsConditionBuilder'
         ];
     }
 

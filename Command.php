@@ -76,7 +76,7 @@ class Command extends Component
                 $primaryKey = current($pks);
                 $currentKey = ArrayHelper::remove($this->queryParams['filter'], $primaryKey);
                 if ($currentKey) {
-                    $this->pathInfo .= '/' . $this->queryParams['filter'][$primaryKey];
+                    $this->pathInfo .= '/' . $currentKey;
                 }
             }
         }
