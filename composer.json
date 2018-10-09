@@ -31,11 +31,17 @@
     "yiisoft/yii2-httpclient": "^2.0.0"
   },
   "require-dev": {
-    "yiisoft/yii2-coding-standards": "~2.0"
+    "yiisoft/yii2-coding-standards": "~2.0",
+    "phpunit/phpunit": "*"
   },
   "autoload": {
     "psr-4": {
-      "simialbi\\yii2\\rest\\": ""
+      "simialbi\\yii2\\rest\\": "src"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "yiiunit\\extensions\\rest\\": "tests"
     }
   }
 }
