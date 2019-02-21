@@ -1,7 +1,7 @@
 <?php
 /**
  * @package yii2-rest-client
- * @author Simon Karlen <simi.albi@gmail.com>
+ * @author Simon Karlen <simi.albi@outlook.com>
  */
 
 namespace yiiunit\extensions\rest;
