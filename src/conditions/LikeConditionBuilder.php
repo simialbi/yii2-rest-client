@@ -16,6 +16,8 @@ use yii\db\ExpressionInterface;
  */
 class LikeConditionBuilder extends \yii\db\conditions\LikeConditionBuilder
 {
+    use ConditionBuilderTrait;
+
     /**
      * {@inheritdoc}
      *
@@ -56,7 +58,7 @@ class LikeConditionBuilder extends \yii\db\conditions\LikeConditionBuilder
             return reset($parts);
         }
 
-        array_unshift($parts, $andor);
+        array_unshift($parts, $this->getOperator($andor));
 
         return $this->queryBuilder->buildCondition($parts, $params);
     }

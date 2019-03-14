@@ -9,10 +9,8 @@
 namespace simialbi\yii2\rest;
 
 use Yii;
-use yii\base\InvalidArgumentException;
 use yii\base\InvalidConfigException;
 use yii\base\NotSupportedException;
-use yii\db\ActiveQueryInterface;
 use yii\db\BaseActiveRecord;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
@@ -23,64 +21,34 @@ use yii\helpers\StringHelper;
 class ActiveRecord extends BaseActiveRecord
 {
     /**
-     * @var array records that are related and where the data can be fetched by using join/joinWith
+     * @var array
      */
-    private $_relatedRecords = [];
+    private $_attributeFields = [];
 
     /**
-     * Constructors.
-     *
-     * @param array $attributes the dynamic attributes (name-value pairs, or names) being defined
-     * @param array $config the configuration array to be applied to this object.
+     * @return array
+     * @throws \ReflectionException
      */
-    public function __construct(array $attributes = [], $config = [])
+    public function attributes()
     {
-        $setOld = true;
-        $keys = $this->primaryKey();
-        foreach ($keys as $key) {
-            if (!isset($attributes[$key])) {
-                $setOld = false;
-                break;
-            }
-        }
-        foreach ($attributes as $name => $value) {
-            if (is_int($name)) {
-                $this->setAttribute($value, null);
-            } else {
-                $this->setAttribute($name, $value);
-            }
-        }
-        if ($setOld) {
-            $this->setOldAttributes($attributes);
-        }
-        parent::__construct($config);
-    }
-
-    /**
-     * {@inheritdoc}
-     * @throws InvalidConfigException
-     */
-    public static function populateRecord($record, $row)
-    {
-        /* @var $record static */
-        parent::populateRecord($record, $row);
-        $relatedRecords = $record->relatedRecords();
-        foreach ($relatedRecords as $name) {
-            if (isset($row[$name])) {
-                $value = $row[$name];
-                if ($record->canGetProperty($name)) {
-                    $getter = 'get' . $name;
-                    /* @var $relation ActiveQuery */
-                    $relation = $record->$getter();
-                    if ($relation instanceof ActiveQueryInterface) {
-                        $model = $relation->modelClass;
-                        /* @var $model ActiveRecord */
-                        $models = $model::find()->populate($relation->multiple ? $value : [$value]);
-                        $record->populateRelation($name, $relation->multiple ? $models : reset($models));
+        if (empty($this->_attributeFields)) {
+            $regex = '#^@property(?:-(read|write))?(?:(?:\s+)([^\s]+))?(?:\s+)\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
+            $typeRegex = '#^(bool(ean)?|int(eger)?|float|double|string)$#';
+            $reflection = new \ReflectionClass($this);
+            $docLines = preg_split('~\R~u', $reflection->getDocComment());
+            foreach ($docLines as $docLine) {
+                $matches = [];
+                $docLine = ltrim($docLine, "\t* ");
+                if (preg_match($regex, $docLine, $matches) && isset($matches[3])) {
+                    if ($matches[1] === 'read' || (!empty($matches[2]) && !preg_match($typeRegex, $matches[2]))) {
+                        continue;
                     }
+                    $this->_attributeFields[] = $matches[3];
                 }
             }
         }
+
+        return $this->_attributeFields;
     }
 
     /**
@@ -89,34 +57,6 @@ class ActiveRecord extends BaseActiveRecord
     public static function primaryKey()
     {
         new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public static function instantiate($row)
-    {
-        return new static($row);
-    }
-
-    /**
-     * TODO
-     */
-    public function relatedRecords()
-    {
-        return $this->_relatedRecords;
-    }
-
-    /**
-     * {@inheritdoc}
-     */
-    public function setAttribute($name, $value)
-    {
-        try {
-            parent::setAttribute($name, $value);
-        } catch (InvalidArgumentException $e) {
-            // do nothing
-        }
     }
 
     /**
@@ -159,16 +99,19 @@ class ActiveRecord extends BaseActiveRecord
      * if the path is not named after this convention.
      *
      * @return string the url path
+     * @throws InvalidConfigException
      */
     public static function modelName()
     {
-        return Inflector::pluralize(Inflector::camel2id(StringHelper::basename(get_called_class()), '-'));
+        $path = Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
+        return self::getDb()->usePluralisation ? Inflector::pluralize($path) : $path;
     }
 
 
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
+     * @throws \yii\httpclient\Exception
      */
     public function insert($runValidation = true, $attributes = null)
     {
@@ -189,6 +132,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return boolean whether the record is inserted successfully.
      * @throws InvalidConfigException
+     * @throws \yii\httpclient\Exception
      */
     protected function insertInternal($attributes)
     {
@@ -213,6 +157,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
+     * @throws \yii\httpclient\Exception
      */
     public function update($runValidation = true, $attributeNames = null)
     {
@@ -229,6 +174,7 @@ class ActiveRecord extends BaseActiveRecord
      * {@inheritdoc}
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
+     * @throws \yii\httpclient\Exception
      */
     protected function updateInternal($attributes = null)
     {
@@ -259,6 +205,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
+     * @throws \yii\httpclient\Exception
      */
     public function delete()
     {

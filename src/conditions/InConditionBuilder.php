@@ -17,6 +17,8 @@ use yii\db\ExpressionInterface;
  */
 class InConditionBuilder extends \yii\db\conditions\InConditionBuilder
 {
+    use ConditionBuilderTrait;
+
     /**
      * {@inheritdoc}
      *
@@ -55,7 +57,7 @@ class InConditionBuilder extends \yii\db\conditions\InConditionBuilder
         }
 
         if (count($sqlValues) > 1) {
-            $operator = $operator === 'IN' ? 'in' : 'nin';
+            $operator = ($operator === 'IN') ? 'in' : 'nin';
             return [$column => [$operator => $sqlValues]];
         }
 

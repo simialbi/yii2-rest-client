@@ -12,6 +12,7 @@ use Closure;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\helpers\Url;
 use yii\httpclient\Client;
 use yii\httpclient\Response;
 use yii\web\HeaderCollection;
@@ -32,7 +33,7 @@ use yii\web\HeaderCollection;
  * ```
  *
  * @property Client $handler
- * @property string|Closure $auth
+ * @property-write string|Closure $auth
  */
 class Connection extends Component
 {
@@ -56,6 +57,10 @@ class Connection extends Component
      * @var array response config configuration.
      */
     public $responseConfig = [];
+    /**
+     * @var boolean Whether to user pluralisation or not
+     */
+    public $usePluralisation = true;
     /**
      * @var string|Closure authorization config
      */
@@ -103,7 +108,7 @@ class Connection extends Component
      *
      * @return string authorization config
      */
-    public function getAuth()
+    protected function getAuth()
     {
         if ($this->_auth instanceof Closure) {
             $this->_auth = call_user_func($this->_auth, $this);
@@ -163,6 +168,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return mixed response
+     * @throws \yii\httpclient\Exception
      */
     public function get($url, $data = [])
     {
@@ -176,10 +182,12 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return HeaderCollection response
+     * @throws \yii\httpclient\Exception
      */
     public function head($url, $data = [])
     {
-        $this->request('head', $url, $data);
+        array_unshift($data, $url);
+        $this->request('head', $data);
 
         return $this->_response->headers;
     }
@@ -191,6 +199,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return mixed response
+     * @throws \yii\httpclient\Exception
      */
     public function post($url, $data = [])
     {
@@ -204,6 +213,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return mixed response
+     * @throws \yii\httpclient\Exception
      */
     public function put($url, $data = [])
     {
@@ -217,6 +227,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return mixed response
+     * @throws \yii\httpclient\Exception
      */
     public function delete($url, $data = [])
     {
@@ -231,10 +242,7 @@ class Connection extends Component
     public function getHandler()
     {
         if (static::$_handler === null) {
-            $requestConfig = array_merge([
-                'class' => 'yii\httpclient\Request',
-                'format' => Client::FORMAT_JSON
-            ], $this->requestConfig);
+            $requestConfig = $this->requestConfig;
             $responseConfig = array_merge([
                 'class' => 'yii\httpclient\Response',
                 'format' => Client::FORMAT_JSON
@@ -258,19 +266,22 @@ class Connection extends Component
      * @param array $data the request data
      *
      * @return Response|false
+     * @throws \yii\httpclient\Exception
      */
     protected function request($method, $url, $data = [])
     {
         $headers = [];
         $method = strtoupper($method);
-        $profile = $method . ' ' . $url . '#' . (is_array($data) ? http_build_query($data) : $data);
+        $profile = $method . ' ' . Url::to($url) . '#' . (is_array($data) ? http_build_query($data) : $data);
 
-        if ($this->auth) {
-            $headers['Authorization'] = $this->auth;
+        if ($auth = $this->getAuth()) {
+            $headers['Authorization'] = $auth;
         }
 
         Yii::beginProfile($profile, __METHOD__);
-        $this->_response = call_user_func([$this->handler, $method], $url, $data, $headers)->send();
+        /* @var $request \yii\httpclient\Request */
+        $request = call_user_func([$this->handler, $method], $url, $data, $headers);
+        $this->_response = $request->send();
         Yii::endProfile($profile, __METHOD__);
 
         if (!$this->_response->isOk) {

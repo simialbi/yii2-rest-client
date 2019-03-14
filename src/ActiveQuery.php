@@ -71,9 +71,9 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->from($modelClass::modelName());
         }
 
-//		if ($this->searchModel === null) {
-//			$this->searchModel = mb_substr(mb_strrchr($this->modelClass, '\\'), 1).'Search';
-//		}
+//        if ($this->searchModel === null) {
+//            $this->searchModel = mb_substr(mb_strrchr($this->modelClass, '\\'), 1) . 'Search';
+//        }
 
         return parent::createCommand($db);
     }
@@ -182,7 +182,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveRecord $model the primary model
      * @param array $with the relations to be joined
      */
-    protected function joinWithRelations($model, $with) {
+    protected function joinWithRelations($model, $with)
+    {
         foreach ($with as $name => $callback) {
             if (is_int($name)) {
                 $name = $callback;
@@ -210,7 +211,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveQuery $parent
      * @param ActiveQuery $child
      */
-    private function joinWithRelation($parent, $child) {
+    private function joinWithRelation($parent, $child)
+    {
         if (!empty($child->join)) {
             foreach ($child->join as $join) {
                 $this->join[] = $join;
@@ -239,7 +241,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             foreach ($models as $model) {
                 $model->afterFind();
             }
-        } elseif($this->indexBy !== null) {
+        } elseif ($this->indexBy !== null) {
             $models = ArrayHelper::index($models, $this->indexBy);
         }
 

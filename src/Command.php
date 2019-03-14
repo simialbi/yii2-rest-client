@@ -103,6 +103,7 @@ class Command extends Component
      * @param array $columns
      *
      * @return mixed
+     * @throws \yii\httpclient\Exception
      */
     public function insert($model, $columns)
     {
@@ -119,6 +120,7 @@ class Command extends Component
      * @param string $id
      *
      * @return mixed
+     * @throws \yii\httpclient\Exception
      */
     public function update($model, $data = [], $id = null)
     {
@@ -137,6 +139,7 @@ class Command extends Component
      * @param string $id
      *
      * @return mixed
+     * @throws \yii\httpclient\Exception
      */
     public function delete($model, $id = null)
     {
@@ -149,7 +152,7 @@ class Command extends Component
     }
 
     /**
-     * Performs the actual get statment
+     * Performs the actual statement
      *
      * @param string $method
      *
@@ -157,7 +160,7 @@ class Command extends Component
      */
     protected function queryInternal($method = 'get')
     {
-        if (strpos($this->pathInfo, '/') === false) {
+        if ($this->db->usePluralisation && strpos($this->pathInfo, '/') === false) {
             $this->pathInfo = Inflector::pluralize($this->pathInfo);
         }
 

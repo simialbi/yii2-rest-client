@@ -17,6 +17,8 @@ use yii\db\ExpressionInterface;
  */
 class NotConditionBuilder extends \yii\db\conditions\NotConditionBuilder
 {
+    use ConditionBuilderTrait;
+
     /**
      * {@inheritdoc}
      *
@@ -32,6 +34,14 @@ class NotConditionBuilder extends \yii\db\conditions\NotConditionBuilder
 
         $expression = $this->queryBuilder->buildCondition($operand, $params);
 
-        return ['not' => $expression];
+        return [$this->getNegationOperator() => $expression];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function getNegationOperator()
+    {
+        return 'not';
     }
 }

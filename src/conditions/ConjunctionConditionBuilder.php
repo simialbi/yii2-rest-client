@@ -17,6 +17,8 @@ use yii\db\ExpressionInterface;
  */
 class ConjunctionConditionBuilder extends \yii\db\conditions\ConjunctionConditionBuilder
 {
+    use ConditionBuilderTrait;
+
     /**
      * {@inheritdoc}
      *
@@ -35,7 +37,7 @@ class ConjunctionConditionBuilder extends \yii\db\conditions\ConjunctionConditio
             return $parts;
         }
 
-        return [$condition->getOperator() => $parts];
+        return [$this->getOperator($condition->getOperator()) => $parts];
     }
 
     /**

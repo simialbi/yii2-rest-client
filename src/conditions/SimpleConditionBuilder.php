@@ -16,20 +16,7 @@ use yii\db\ExpressionInterface;
  */
 class SimpleConditionBuilder extends \yii\db\conditions\SimpleConditionBuilder
 {
-    public $filterControls = [
-        'AND' => 'and',
-        'OR' => 'or',
-        'NOT' => 'not',
-        '<' => 'lt',
-        '>' => 'gt',
-        '<=' => 'lte',
-        '>=' => 'gte',
-        '=' => 'eq',
-        '!=' => 'neq',
-        'IN' => 'in',
-        'NOT IN' => 'nin',
-        'LIKE' => 'like'
-    ];
+    use ConditionBuilderTrait;
 
     /**
      * {@inheritdoc}
@@ -44,13 +31,13 @@ class SimpleConditionBuilder extends \yii\db\conditions\SimpleConditionBuilder
         $value = $expression->getValue();
 
         if ($value === null) {
-            return [$column => [$this->filterControls[$operator] => null]];
+            return [$column => [$this->getOperator($operator) => null]];
         }
         if ($value instanceof ExpressionInterface) {
-            return [$column => [$this->filterControls[$operator] => $this->queryBuilder->buildExpression($value, $params)]];
+            return [$column => [$this->getOperator($operator) => $this->queryBuilder->buildExpression($value, $params)]];
         }
 
         $phName = $this->queryBuilder->bindParam($value, $params);
-        return [$column => [$this->filterControls[$operator] => $phName]];
+        return [$column => [$this->getOperator($operator) => $phName]];
     }
 }

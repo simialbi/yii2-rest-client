@@ -17,6 +17,8 @@ use yii\db\ExpressionInterface;
  */
 class BetweenConditionBuilder extends \yii\db\conditions\BetweenConditionBuilder
 {
+    use ConditionBuilderTrait;
+
     /**
      * {@inheritdoc}
      *

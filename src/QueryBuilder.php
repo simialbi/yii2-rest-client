@@ -182,7 +182,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
     }
 
     /**
-     * @return array
+     * {@inheritdoc}
      */
     protected function defaultExpressionBuilders()
     {
@@ -226,10 +226,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
     }
 
     /**
-     * @param integer $limit
-     * @param integer $offset
-     *
-     * @return array the LIMIT and OFFSET clauses
+     * {@inheritdoc}
      */
     public function buildLimit($limit, $offset)
     {
@@ -243,5 +240,13 @@ class QueryBuilder extends \yii\db\QueryBuilder
         }
 
         return $clauses;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function bindParam($value, &$params)
+    {
+        return $value;
     }
 }

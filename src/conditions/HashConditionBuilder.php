@@ -19,6 +19,8 @@ use yii\helpers\ArrayHelper;
  */
 class HashConditionBuilder extends \yii\db\conditions\HashConditionBuilder
 {
+    use ConditionBuilderTrait;
+
     /**
      * {@inheritdoc}
      *
