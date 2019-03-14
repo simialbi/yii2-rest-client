@@ -2,6 +2,11 @@
 This extension provides an interface to work with RESTful API via ActiveRecord-like model in Yii 2.
 It is based on [ApexWire's](https://github.com/ApexWire) [yii2-restclient](https://github.com/ApexWire/yii2-restclient).
 
+
+[![Latest Stable Version](https://poser.pugx.org/simialbi/yii2-rest-client/v/stable?format=flat-square)](https://packagist.org/packages/simialbi/yii2-rest-client)
+[![Total Downloads](https://poser.pugx.org/simialbi/yii2-rest-client/downloads?format=flat-square)](https://packagist.org/packages/simialbi/yii2-rest-client)
+[![License](https://poser.pugx.org/simialbi/yii2-rest-client/license?format=flat-square)](https://packagist.org/packages/simialbi/yii2-rest-client)
+
 ## Resources
  * [yii2-restclient](https://github.com/ApexWire/yii2-restclient)
  * [\yii\db\ActiveRecord](http://www.yiiframework.com/doc-2.0/guide-db-active-record.html)
