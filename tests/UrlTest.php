@@ -7,6 +7,7 @@
 
 namespace yiiunit\extensions\rest;
 
+use Yii;
 use yiiunit\extensions\rest\models\RestModel;
 
 class UrlTest extends TestCase
@@ -16,6 +17,7 @@ class UrlTest extends TestCase
         parent::setUp();
 
         $this->mockWebApplication();
+        Yii::$app->log->logger->flush();
     }
 
     public function testGetOne()

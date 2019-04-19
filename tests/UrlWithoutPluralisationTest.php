@@ -8,6 +8,7 @@
 namespace yiiunit\extensions\rest;
 
 
+use Yii;
 use yiiunit\extensions\rest\models\RestModel;
 
 class UrlWithoutPluralisationTest extends TestCase
@@ -23,6 +24,7 @@ class UrlWithoutPluralisationTest extends TestCase
                 ]
             ]
         ]);
+        Yii::$app->log->logger->flush();
     }
 
     public function testGetOne()
