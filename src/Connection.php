@@ -62,6 +62,11 @@ class Connection extends Component
      */
     public $usePluralisation = true;
     /**
+     * @var boolean Whether we are in test mode or not (prevent execution)
+     */
+    public $isTestMode = false;
+
+    /**
      * @var string|Closure authorization config
      */
     protected $_auth;
@@ -265,7 +270,7 @@ class Connection extends Component
      * @param string|array $url the URL for request, not including proto and site
      * @param array $data the request data
      *
-     * @return Response|false
+     * @return mixed|false
      * @throws \yii\httpclient\Exception
      */
     protected function request($method, $url, $data = [])
@@ -280,14 +285,19 @@ class Connection extends Component
 
         Yii::beginProfile($profile, __METHOD__);
         /* @var $request \yii\httpclient\Request */
+
+        Yii::debug($this->handler->baseUrl . '/' . $url, __METHOD__ . '-url');
+        Yii::debug($data, __METHOD__ . '-data');
+        Yii::debug($headers, __METHOD__ . '-headers');
+
         $request = call_user_func([$this->handler, $method], $url, $data, $headers);
-        $this->_response = $request->send();
+        $this->_response = $this->isTestMode ? [] : $request->send();
         Yii::endProfile($profile, __METHOD__);
 
-        if (!$this->_response->isOk) {
+        if (!$this->isTestMode && !$this->_response->isOk) {
             return false;
         }
 
-        return $this->_response->data;
+        return $this->isTestMode ? [] : $this->_response->data;
     }
 }

@@ -12,6 +12,8 @@ use yii\helpers\ArrayHelper;
 
 class TestCase extends \PHPUnit\Framework\TestCase
 {
+    private $_index = 0;
+
     /**
      * {@inheritdoc}
      */
@@ -44,7 +46,17 @@ class TestCase extends \PHPUnit\Framework\TestCase
                 ],
                 'rest' => [
                     'class' => 'simialbi\yii2\rest\Connection',
-                    'baseUrl' => 'https:s//api.site.com/'
+                    'baseUrl' => 'https://api.site.com/',
+                    'isTestMode' => true
+                ],
+                'log' => [
+                    'traceLevel' => 3,
+                    'targets' => [
+                        [
+                            'class' => 'yiiunit\extensions\rest\log\ArrayTarget'
+                        ]
+                    ],
+                    'flushInterval' => 0
                 ]
             ]
         ], $config));
@@ -57,5 +69,39 @@ class TestCase extends \PHPUnit\Framework\TestCase
     {
         Yii::$app = null;
         Yii::$container = new Container();
+    }
+
+    /**
+     * Parse log from index and returns data
+     * @return array
+     */
+    protected function parseLogs()
+    {
+        $url = '';
+        $data = [];
+        $headers = [];
+
+        $profile = false;
+        for (; $this->_index <= count(Yii::$app->log->logger->messages); $this->_index++) {
+            $message = Yii::$app->log->logger->messages[$this->_index];
+            if ($message[2] === 'simialbi\yii2\rest\Connection::request-url') {
+                $url = $message[0];
+            } elseif ($message[2] === 'simialbi\yii2\rest\Connection::request-data') {
+                $data = $message[0];
+            } elseif ($message[2] === 'simialbi\yii2\rest\Connection::request-headers') {
+                $data = $message[0];
+            } elseif ($message[2] === 'simialbi\yii2\rest\Connection::request') {
+                if ($profile) {
+                    break;
+                }
+                $profile = true;
+            }
+        }
+
+        return [
+            'url' => $url,
+            'data' => $data,
+            'headers' => $headers
+        ];
     }
 }
