@@ -77,6 +77,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected function parseLogs()
     {
+        $method = '';
         $url = '';
         $data = [];
         $headers = [];
@@ -84,7 +85,9 @@ class TestCase extends \PHPUnit\Framework\TestCase
         $profile = false;
         for (; $this->_index <= count(Yii::$app->log->logger->messages); $this->_index++) {
             $message = Yii::$app->log->logger->messages[$this->_index];
-            if ($message[2] === 'simialbi\yii2\rest\Connection::request-url') {
+            if ($message[2] === 'simialbi\yii2\rest\Connection::request-method') {
+                $method = $message[0];
+            } elseif ($message[2] === 'simialbi\yii2\rest\Connection::request-url') {
                 $url = $message[0];
             } elseif ($message[2] === 'simialbi\yii2\rest\Connection::request-data') {
                 $data = $message[0];
@@ -99,6 +102,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
         }
 
         return [
+            'method' => $method,
             'url' => $url,
             'data' => $data,
             'headers' => $headers

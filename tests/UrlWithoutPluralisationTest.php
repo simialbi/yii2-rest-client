@@ -33,6 +33,7 @@ class UrlWithoutPluralisationTest extends TestCase
 
         $logEntry = $this->parseLogs();
 
+        $this->assertEquals('GET', $logEntry['method']);
         $this->assertEquals('https://api.site.com/rest-model/1', $logEntry['url']);
     }
 
@@ -42,6 +43,38 @@ class UrlWithoutPluralisationTest extends TestCase
 
         $logEntry = $this->parseLogs();
 
+        $this->assertEquals('GET', $logEntry['method']);
+        $this->assertEquals('https://api.site.com/rest-model/1', $logEntry['url']);
+    }
+
+    public function testDeleteOne()
+    {
+        $model = new RestModel([
+            'oldAttributes' => [
+                'id' => 1,
+                'name' => 'test',
+                'description' => 'test',
+                'created_at' => time(),
+                'updated_at' => time(),
+                'created_by' => 'simialbi',
+                'updated_by' => 'simialbi'
+            ],
+            'attributes' => [
+                'id' => 1,
+                'name' => 'test',
+                'description' => 'test',
+                'created_at' => time(),
+                'updated_at' => time(),
+                'created_by' => 'simialbi',
+                'updated_by' => 'simialbi'
+            ]
+        ]);
+
+        $model->delete();
+
+        $logEntry = $this->parseLogs();
+
+        $this->assertEquals('DELETE', $logEntry['method']);
         $this->assertEquals('https://api.site.com/rest-model/1', $logEntry['url']);
     }
 }

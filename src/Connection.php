@@ -286,6 +286,7 @@ class Connection extends Component
         Yii::beginProfile($profile, __METHOD__);
         /* @var $request \yii\httpclient\Request */
 
+        Yii::debug($method, __METHOD__ . '-method');
         Yii::debug($this->handler->baseUrl . '/' . $url, __METHOD__ . '-url');
         Yii::debug($data, __METHOD__ . '-data');
         Yii::debug($headers, __METHOD__ . '-headers');
