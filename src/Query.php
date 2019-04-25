@@ -13,6 +13,8 @@ use yii\db\QueryInterface;
 
 /**
  * Class Query
+ *
+ * @property string $modelClass the name of the ActiveRecord class.
  */
 class Query extends \yii\db\Query implements QueryInterface
 {
@@ -24,7 +26,7 @@ class Query extends \yii\db\Query implements QueryInterface
     /**
      * @var mixed Value of the primary key (special where)
      */
-    public $modelClass;
+    private $_modelClass;
 
     /**
      * Constructor.
@@ -153,5 +155,23 @@ class Query extends \yii\db\Query implements QueryInterface
             'union' => $from->union,
             'params' => $from->params,
         ]);
+    }
+
+    /**
+     * Getter for modelClass
+     * @return mixed
+     */
+    public function getModelClass()
+    {
+        return $this->_modelClass;
+    }
+
+    /**
+     * Setter for modelClass
+     * @param mixed $modelClass
+     */
+    public function setModelClass($modelClass)
+    {
+        $this->_modelClass = $modelClass;
     }
 }

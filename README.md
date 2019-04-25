@@ -42,6 +42,7 @@ To use this extension, configure restclient component in your application config
             // },
             // 'auth' => 'Bearer: <mytoken>',
             // 'usePluralisation' => false,
+            // 'enableExceptions' => true,
         ],
     ],
 ```
@@ -50,7 +51,8 @@ To use this extension, configure restclient component in your application config
 | ------------------ | ---------------------------------------------------------------------------------------------------------------- |
 | `baseUrl`          | The location of the api. E.g. for http://api.site.com/v1/users the `baseUrl` would be http://api.site.com/v1/    |
 | `auth`             | Either a Closure which returns a `string` or a `string`. The rest connection will be passed as parameter.        |
-| `usePluralisation` | Whether to use plural version for lists (index action) or not (e.g. http://api.site.com/users instead of `user`) | 
+| `usePluralisation` | Whether to use plural version for lists (index action) or not (e.g. http://api.site.com/users instead of `user`) |
+| `enableExceptions` | Whether the connection should throw an exception if response is not 200 or not                                   | 
 
 ## Usage
 Define your Model
