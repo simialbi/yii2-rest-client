@@ -7,24 +7,22 @@
 
 namespace yiiunit\extensions\rest\models;
 
-
 use simialbi\yii2\rest\ActiveRecord;
 
 /**
- * Class RestModel
+ * Class RelatedRestModel
  * @package yiiunit\extensions\rest\models
  *
  * @property integer $id
- * @property string $name
- * @property string $description
+ * @property integer $rest_model_id
+ * @property string $subject
+ * @property string $message
  * @property integer $created_at
  * @property integer $updated_at
  * @property string $created_by
  * @property string $updated_by
- *
- * @property-read RelatedRestModel[] $relatedRests
  */
-class RestModel extends ActiveRecord
+class RelatedRestModel extends ActiveRecord
 {
     /**
      * {@inheritDoc}
@@ -32,14 +30,5 @@ class RestModel extends ActiveRecord
     public static function primaryKey()
     {
         return ['id'];
-    }
-
-    /**
-     * Get related rests
-     * @return \yii\db\ActiveQueryInterface
-     */
-    public function getRelatedRests()
-    {
-        return $this->hasMany(RelatedRestModel::class, ['rest_model_id' => 'id']);
     }
 }

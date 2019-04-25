@@ -6,6 +6,7 @@ It is based on [ApexWire's](https://github.com/ApexWire) [yii2-restclient](https
 [![Latest Stable Version](https://poser.pugx.org/simialbi/yii2-rest-client/v/stable?format=flat-square)](https://packagist.org/packages/simialbi/yii2-rest-client)
 [![Total Downloads](https://poser.pugx.org/simialbi/yii2-rest-client/downloads?format=flat-square)](https://packagist.org/packages/simialbi/yii2-rest-client)
 [![License](https://poser.pugx.org/simialbi/yii2-rest-client/license?format=flat-square)](https://packagist.org/packages/simialbi/yii2-rest-client)
+[![Build Status](https://travis-ci.com/simialbi/yii2-rest-client.svg?branch=master)](https://travis-ci.com/simialbi/yii2-rest-client)
 
 ## Resources
  * [yii2-restclient](https://github.com/ApexWire/yii2-restclient)

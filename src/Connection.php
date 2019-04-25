@@ -12,7 +12,6 @@ use Closure;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
-use yii\helpers\Url;
 use yii\httpclient\Client;
 use yii\httpclient\Response;
 use yii\web\HeaderCollection;
@@ -177,7 +176,8 @@ class Connection extends Component
      */
     public function get($url, $data = [])
     {
-        return $this->request('get', $url, $data);
+        array_unshift($data, $url);
+        return $this->request('get', $data);
     }
 
     /**
@@ -275,9 +275,20 @@ class Connection extends Component
      */
     protected function request($method, $url, $data = [])
     {
+        if (is_array($url)) {
+            $path = array_shift($url);
+            $query = http_build_query($url);
+
+            array_unshift($url, $path);
+
+            $path .= '?' . $query;
+        } else {
+            $path = $url;
+        }
+
         $headers = [];
         $method = strtoupper($method);
-        $profile = $method . ' ' . Url::to($url) . '#' . (is_array($data) ? http_build_query($data) : $data);
+        $profile = $method . ' ' . $this->handler->baseUrl . '/' . $path . '#' . (is_array($data) ? http_build_query($data) : $data);
 
         if ($auth = $this->getAuth()) {
             $headers['Authorization'] = $auth;
@@ -287,7 +298,7 @@ class Connection extends Component
         /* @var $request \yii\httpclient\Request */
 
         Yii::debug($method, __METHOD__ . '-method');
-        Yii::debug($this->handler->baseUrl . '/' . $url, __METHOD__ . '-url');
+        Yii::debug($this->handler->baseUrl . '/' . $path, __METHOD__ . '-url');
         Yii::debug($data, __METHOD__ . '-data');
         Yii::debug($headers, __METHOD__ . '-headers');
 

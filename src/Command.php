@@ -54,17 +54,24 @@ class Command extends Component
     }
 
     /**
-     * @return mixed
+     * Executes the SQL statement and returns ALL rows at once.
+     * @param int $fetchMode for compatibility with [[\yii\db\Command]]
+     * @return array all rows of the query result. Each array element is an array representing a row of data.
+     * An empty array is returned if the query results in nothing.
      */
-    public function queryAll()
+    public function queryAll($fetchMode = null)
     {
         return $this->queryInternal();
     }
 
     /**
-     * @return mixed
+     * Executes the SQL statement and returns the first row of the result.
+     * This method is best used when only the first row of result is needed for a query.
+     * @param int $fetchMode for compatibility with [[\yii\db\Command]]
+     * @return array|false the first row (in terms of an array) of the query result. False is returned if the query
+     * results in nothing.
      */
-    public function queryOne()
+    public function queryOne($fetchMode = null)
     {
         /* @var $class ActiveRecord */
         $class = $this->modelClass;

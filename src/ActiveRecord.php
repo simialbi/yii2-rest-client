@@ -65,15 +65,10 @@ class ActiveRecord extends BaseActiveRecord
      * @return ActiveQuery
      * @throws InvalidConfigException
      */
-    public static function find($options = [])
+    public static function find()
     {
-        $config = [
-            'class' => 'simialbi\yii2\rest\ActiveQuery',
-            'options' => $options
-        ];
-
         /* @var $query ActiveQuery */
-        $query = Yii::createObject($config, [get_called_class()]);
+        $query = Yii::createObject(ActiveQuery::class, [get_called_class()]);
 
         return $query;
     }

@@ -28,24 +28,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public $joinWith = [];
 
     /**
-     * @var array options for search
-     */
-    public $options = [];
-
-    /**
-     * Constructor.
-     *
-     * @param string $modelClass the model class associated with this query
-     * @param array $config configurations to be applied to the newly created query object
-     */
-    public function __construct($modelClass, $config = [])
-    {
-        $this->modelClass = $modelClass;
-        parent::__construct($config);
-    }
-
-
-    /**
      * Creates a DB command that can be used to execute this query.
      *
      * @param Connection $db the DB connection used to create the DB command.
@@ -70,10 +52,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if ($this->from === null) {
             $this->from($modelClass::modelName());
         }
-
-//        if ($this->searchModel === null) {
-//            $this->searchModel = mb_substr(mb_strrchr($this->modelClass, '\\'), 1) . 'Search';
-//        }
 
         return parent::createCommand($db);
     }
@@ -104,6 +82,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * {@inheritdoc}
+     * @throws InvalidConfigException
      */
     public function prepare($builder)
     {
@@ -111,7 +90,48 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $this->buildJoinWith();
             $this->joinWith = null;
         }
-        return $this;
+
+        if ($this->primaryModel === null) {
+            // eager loading
+            $query = Query::create($this);
+        } else {
+            // lazy loading of a relation
+            $where = $this->where;
+
+            if ($this->via instanceof self) {
+                // via junction table
+                $viaModels = $this->via->findJunctionRows([$this->primaryModel]);
+                $this->filterByModels($viaModels);
+            } elseif (is_array($this->via)) {
+                // via relation
+                /* @var $viaQuery ActiveQuery */
+                list($viaName, $viaQuery) = $this->via;
+                if ($viaQuery->multiple) {
+                    if ($this->primaryModel->isRelationPopulated($viaName)) {
+                        $viaModels = $this->primaryModel->$viaName;
+                    } else {
+                        $viaModels = $viaQuery->all();
+                        $this->primaryModel->populateRelation($viaName, $viaModels);
+                    }
+                } else {
+                    if ($this->primaryModel->isRelationPopulated($viaName)) {
+                        $model = $this->primaryModel->$viaName;
+                    } else {
+                        $model = $viaQuery->one();
+                        $this->primaryModel->populateRelation($viaName, $model);
+                    }
+                    $viaModels = $model === null ? [] : [$model];
+                }
+                $this->filterByModels($viaModels);
+            } else {
+                $this->filterByModels([$this->primaryModel]);
+            }
+
+            $query = Query::create($this);
+            $this->andWhere($where);
+        }
+
+        return $query;
     }
 
     /**

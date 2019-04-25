@@ -21,11 +21,22 @@ class Query extends \yii\db\Query implements QueryInterface
      * @see from()
      */
     public $from;
+    /**
+     * @var mixed Value of the primary key (special where)
+     */
+    public $modelClass;
 
     /**
-     * @var ActiveRecord
+     * Constructor.
+     *
+     * @param string $modelClass the model class associated with this query
+     * @param array $config configurations to be applied to the newly created query object
      */
-    public $searchModel;
+    public function __construct($modelClass, $config = [])
+    {
+        $this->modelClass = $modelClass;
+        parent::__construct($config);
+    }
 
     /**
      * Prepares for building query.
@@ -117,5 +128,30 @@ class Query extends \yii\db\Query implements QueryInterface
         $this->from = $tables;
 
         return $this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    public static function create($from)
+    {
+        $modelClass = ($from->hasProperty('modelClass')) ? $from->modelClass : null;
+
+        return new self($modelClass, [
+            'where' => $from->where,
+            'limit' => $from->limit,
+            'offset' => $from->offset,
+            'orderBy' => $from->orderBy,
+            'indexBy' => $from->indexBy,
+            'select' => $from->select,
+            'selectOption' => $from->selectOption,
+            'distinct' => $from->distinct,
+            'from' => $from->from,
+            'groupBy' => $from->groupBy,
+            'join' => $from->join,
+            'having' => $from->having,
+            'union' => $from->union,
+            'params' => $from->params,
+        ]);
     }
 }
