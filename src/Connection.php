@@ -61,6 +61,10 @@ class Connection extends Component
      */
     public $usePluralisation = true;
     /**
+     * @var boolean Whether the connection should throw an exception if response is not 200 or not
+     */
+    public $enableExceptions = false;
+    /**
      * @var boolean Whether we are in test mode or not (prevent execution)
      */
     public $isTestMode = false;
@@ -172,7 +176,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return mixed response
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function get($url, $data = [])
     {
@@ -187,7 +191,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return HeaderCollection response
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function head($url, $data = [])
     {
@@ -204,7 +208,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return mixed response
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function post($url, $data = [])
     {
@@ -218,7 +222,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return mixed response
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function put($url, $data = [])
     {
@@ -232,7 +236,7 @@ class Connection extends Component
      * @param array $data request body
      *
      * @return mixed response
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function delete($url, $data = [])
     {
@@ -271,7 +275,7 @@ class Connection extends Component
      * @param array $data the request data
      *
      * @return mixed|false
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     protected function request($method, $url, $data = [])
     {
@@ -303,10 +307,17 @@ class Connection extends Component
         Yii::debug($headers, __METHOD__ . '-headers');
 
         $request = call_user_func([$this->handler, $method], $url, $data, $headers);
-        $this->_response = $this->isTestMode ? [] : $request->send();
+        try {
+            $this->_response = $this->isTestMode ? [] : $request->send();
+        } catch (\yii\httpclient\Exception $e) {
+            throw new Exception('Request failed', [], 0, $e);
+        }
         Yii::endProfile($profile, __METHOD__);
 
         if (!$this->isTestMode && !$this->_response->isOk) {
+            if ($this->enableExceptions) {
+                throw new Exception($this->_response->content, $this->_response->headers->toArray());
+            }
             return false;
         }
 

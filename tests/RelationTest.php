@@ -40,6 +40,6 @@ class RelationTest extends TestCase
         $logEntry = $this->parseLogs();
 
         $this->assertEquals('GET', $logEntry['method']);
-        $this->assertEquals('https://api.site.com/related-rest-models?filter%5Brest_model_id%5D=1', $logEntry['url']);
+        $this->assertStringStartsWith('https://api.site.com/related-rest-models?filter%5Brest_model_id%5D=1', $logEntry['url']);
     }
 }

@@ -27,7 +27,7 @@ class UrlTest extends TestCase
         $logEntry = $this->parseLogs();
 
         $this->assertEquals('GET', $logEntry['method']);
-        $this->assertEquals('https://api.site.com/rest-models/1', $logEntry['url']);
+        $this->assertStringStartsWith('https://api.site.com/rest-models/1', $logEntry['url']);
     }
 
     public function testGetAnotherOne()
@@ -37,7 +37,7 @@ class UrlTest extends TestCase
         $logEntry = $this->parseLogs();
 
         $this->assertEquals('GET', $logEntry['method']);
-        $this->assertEquals('https://api.site.com/rest-models/1', $logEntry['url']);
+        $this->assertStringStartsWith('https://api.site.com/rest-models/1', $logEntry['url']);
     }
 
     public function testDeleteOne()
@@ -68,6 +68,6 @@ class UrlTest extends TestCase
         $logEntry = $this->parseLogs();
 
         $this->assertEquals('DELETE', $logEntry['method']);
-        $this->assertEquals('https://api.site.com/rest-models/1', $logEntry['url']);
+        $this->assertStringStartsWith('https://api.site.com/rest-models/1', $logEntry['url']);
     }
 }
