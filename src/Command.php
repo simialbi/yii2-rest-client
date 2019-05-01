@@ -110,7 +110,7 @@ class Command extends Component
      * @param array $columns
      *
      * @return mixed
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function insert($model, $columns)
     {
@@ -127,7 +127,7 @@ class Command extends Component
      * @param string $id
      *
      * @return mixed
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function update($model, $data = [], $id = null)
     {
@@ -146,7 +146,7 @@ class Command extends Component
      * @param string $id
      *
      * @return mixed
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function delete($model, $id = null)
     {

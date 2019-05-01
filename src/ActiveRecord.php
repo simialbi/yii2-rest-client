@@ -106,7 +106,7 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     public function insert($runValidation = true, $attributes = null)
     {
@@ -127,7 +127,7 @@ class ActiveRecord extends BaseActiveRecord
      *
      * @return boolean whether the record is inserted successfully.
      * @throws InvalidConfigException
-     * @throws \yii\httpclient\Exception
+     * @throws Exception
      */
     protected function insertInternal($attributes)
     {
@@ -169,7 +169,6 @@ class ActiveRecord extends BaseActiveRecord
      * {@inheritdoc}
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
-     * @throws \yii\httpclient\Exception
      */
     protected function updateInternal($attributes = null)
     {
@@ -200,7 +199,6 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
-     * @throws \yii\httpclient\Exception
      */
     public function delete()
     {
