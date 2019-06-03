@@ -310,7 +310,7 @@ class Connection extends Component
         try {
             $this->_response = $this->isTestMode ? [] : $request->send();
         } catch (\yii\httpclient\Exception $e) {
-            throw new Exception('Request failed', [], 0, $e);
+            throw new Exception('Request failed', [], 1, $e);
         }
         Yii::endProfile($profile, __METHOD__);
 

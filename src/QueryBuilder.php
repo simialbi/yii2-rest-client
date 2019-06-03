@@ -85,7 +85,9 @@ class QueryBuilder extends \yii\db\QueryBuilder
         return [
             'modelClass' => ArrayHelper::getValue($query, 'modelClass', ''),
             'pathInfo' => ArrayHelper::remove($clauses, 'pathInfo'),
-            'queryParams' => array_filter($clauses)
+            'queryParams' => array_filter($clauses, function ($value) {
+                return $value !== '' && $value !== [] && $value !== null && (!is_string($value) || trim($value) !== '');
+            })
         ];
     }
 
