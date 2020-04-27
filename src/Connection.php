@@ -297,6 +297,10 @@ class Connection extends Component
         if ($auth = $this->getAuth()) {
             $headers['Authorization'] = $auth;
         }
+        if ($method === 'head') {
+            $data = $headers;
+            $headers = [];
+        }
 
         Yii::beginProfile($profile, __METHOD__);
         /* @var $request \yii\httpclient\Request */
