@@ -8,6 +8,7 @@
 
 namespace simialbi\yii2\rest;
 
+use Yii;
 use yii\base\Component;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
@@ -41,6 +42,43 @@ class Command extends Component
     public $queryParams;
 
     /**
+     * @var \yii\caching\Dependency the dependency to be associated with the cached query result for this command
+     * @see cache()
+     */
+    public $queryCacheDependency;
+    /**
+     * @var int the default number of seconds that query results can remain valid in cache.
+     * Use 0 to indicate that the cached data will never expire. And use a negative number to indicate
+     * query cache should not be used.
+     * @see cache()
+     */
+    public $queryCacheDuration;
+
+    /**
+     * Enables query cache for this command.
+     * @param int $duration the number of seconds that query result of this command can remain valid in the cache.
+     * If this is not set, the value of [[Connection::queryCacheDuration]] will be used instead.
+     * Use 0 to indicate that the cached data will never expire.
+     * @param \yii\caching\Dependency $dependency the cache dependency associated with the cached query result.
+     * @return $this the command object itself
+     */
+    public function cache($duration = null, $dependency = null)
+    {
+        $this->queryCacheDuration = $duration === null ? $this->db->queryCacheDuration : $duration;
+        $this->queryCacheDependency = $dependency;
+        return $this;
+    }
+    /**
+     * Disables query cache for this command.
+     * @return $this the command object itself
+     */
+    public function noCache()
+    {
+        $this->queryCacheDuration = -1;
+        return $this;
+    }
+
+    /**
      * Returns the raw url by inserting parameter values into the corresponding placeholders.
      * Note that the return value of this method should mainly be used for logging purpose.
      * It is likely that this method returns an invalid URL due to improper replacement of parameter placeholders.
@@ -58,6 +96,7 @@ class Command extends Component
      * @param int $fetchMode for compatibility with [[\yii\db\Command]]
      * @return array all rows of the query result. Each array element is an array representing a row of data.
      * An empty array is returned if the query results in nothing.
+     * @throws \yii\base\InvalidConfigException
      */
     public function queryAll($fetchMode = null)
     {
@@ -174,7 +213,35 @@ class Command extends Component
             $filter = ArrayHelper::remove($this->queryParams, 'filter', []);
             $this->queryParams = array_merge($this->queryParams, $filter);
         }
+        $info = $this->db->getQueryCacheInfo($this->queryCacheDuration, $this->queryCacheDependency);
+        if (is_array($info)) {
+            /* @var $cache \yii\caching\CacheInterface */
+            $cache = $info[0];
+            $cacheKey = $this->getCacheKey($method);
+            $result = $cache->get($cacheKey);
+            if (is_array($result) && isset($result[0])) {
+                Yii::debug('Query result served from cache', 'simialbi\yii2\rest\Command::query');
+                return $result[0];
+            }
+        }
 
         return $this->db->$method($this->pathInfo, $this->queryParams);
+    }
+
+    /**
+     * Returns the cache key for the query.
+     *
+     * @param string $method
+     * @return array the cache key
+     * @since 2.0.16
+     */
+    protected function getCacheKey($method)
+    {
+        return [
+            __CLASS__,
+            $method,
+            $this->pathInfo,
+            $this->queryParams
+        ];
     }
 }

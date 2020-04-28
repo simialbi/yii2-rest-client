@@ -72,8 +72,10 @@ class Query extends \yii\db\Query implements QueryInterface
         }
 
         $commandConfig = $db->getQueryBuilder()->build($this);
+        $command = $db->createCommand($commandConfig);
+        $this->setCommandCache($command);
 
-        return $db->createCommand($commandConfig);
+        return $command;
     }
 
     /**
@@ -173,5 +175,18 @@ class Query extends \yii\db\Query implements QueryInterface
     public function setModelClass($modelClass)
     {
         $this->_modelClass = $modelClass;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param Command $command
+     * @return Command
+     */
+    protected function setCommandCache($command)
+    {
+        /** @var \yii\db\Command $command */
+        $command = parent::setCommandCache($command);
+        /** @var Command $command */
+        return $command;
     }
 }
