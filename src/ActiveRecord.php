@@ -99,7 +99,7 @@ class ActiveRecord extends BaseActiveRecord
     public static function modelName()
     {
         $path = Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
-        return self::getDb()->usePluralisation ? Inflector::pluralize($path) : $path;
+        return static::getDb()->usePluralisation ? Inflector::pluralize($path) : $path;
     }
 
 

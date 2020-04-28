@@ -170,6 +170,10 @@ class Command extends Component
         if ($this->db->usePluralisation && strpos($this->pathInfo, '/') === false) {
             $this->pathInfo = Inflector::pluralize($this->pathInfo);
         }
+        if (!$this->db->useFilterKeyword) {
+            $filter = ArrayHelper::remove($this->queryParams, 'filter', []);
+            $this->queryParams = array_merge($this->queryParams, $filter);
+        }
 
         return $this->db->$method($this->pathInfo, $this->queryParams);
     }

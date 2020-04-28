@@ -57,9 +57,13 @@ class Connection extends Component
      */
     public $responseConfig = [];
     /**
-     * @var boolean Whether to user pluralisation or not
+     * @var boolean Whether to use pluralisation or not
      */
     public $usePluralisation = true;
+    /**
+     * @var boolean Whether to use filter keyword or not
+     */
+    public $useFilterKeyword = true;
     /**
      * @var boolean Whether the connection should throw an exception if response is not 200 or not
      */

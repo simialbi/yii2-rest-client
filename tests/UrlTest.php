@@ -40,6 +40,34 @@ class UrlTest extends TestCase
         $this->assertStringStartsWith('https://api.site.com/rest-models/1', $logEntry['url']);
     }
 
+    public function testFilter()
+    {
+        RestModel::find()->where(['name' => 'John'])->one();
+
+        $logEntry = $this->parseLogs();
+
+        $this->assertEquals('GET', $logEntry['method']);
+        $this->assertStringStartsWith('https://api.site.com/rest-models?filter%5Bname%5D=John', $logEntry['url']);
+    }
+
+    public function testWithoutFilterKeyword()
+    {
+        $this->mockWebApplication([
+            'components' => [
+                'rest' => [
+                    'useFilterKeyword' => false
+                ]
+            ]
+        ]);
+
+        RestModel::find()->where(['name' => 'John'])->one();
+
+        $logEntry = $this->parseLogs();
+
+        $this->assertEquals('GET', $logEntry['method']);
+        $this->assertStringStartsWith('https://api.site.com/rest-models?name=John', $logEntry['url']);
+    }
+
     public function testDeleteOne()
     {
         $model = new RestModel([
