@@ -83,7 +83,7 @@ class Connection extends Component
      * @see cache()
      * @see noCache()
      */
-    public $enableQueryCache = true;
+    public $enableQueryCache = false;
     /**
      * @var int the default number of seconds that query results can remain valid in cache.
      * Defaults to 3600, meaning 3600 seconds, or one hour. Use 0 to indicate that the cached data will never expire.
