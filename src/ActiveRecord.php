@@ -33,7 +33,7 @@ class ActiveRecord extends BaseActiveRecord
     {
         if (empty($this->_attributeFields)) {
             $regex = '#^@property(?:-(read|write))?(?:(?:\s+)([^\s]+))?(?:\s+)\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
-            $typeRegex = '#^(bool(ean)?|int(eger)?|float|double|string)$#';
+            $typeRegex = '#^(bool(ean)?|int(eger)?|float|double|string|array)$#';
             $reflection = new \ReflectionClass($this);
             $docLines = preg_split('~\R~u', $reflection->getDocComment());
             foreach ($docLines as $docLine) {
