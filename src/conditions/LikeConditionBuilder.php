@@ -51,14 +51,14 @@ class LikeConditionBuilder extends \yii\db\conditions\LikeConditionBuilder
             } else {
                 $phName = $this->queryBuilder->bindParam($value, $params);
             }
-            $parts[] = [$column => ['like' => reset($phName)]];
+            $parts[] = [$column => ['like' => is_array($phName) ? reset($phName) : $phName]];
         }
 
         if (count($parts) === 1) {
             return reset($parts);
         }
 
-        array_unshift($parts, $this->getOperator($andor));
+        array_unshift($parts, $andor);
 
         return $this->queryBuilder->buildCondition($parts, $params);
     }
