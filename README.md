@@ -35,7 +35,7 @@ To use this extension, configure restclient component in your application config
 ```php
     'components' => [
         'rest' => [
-            'class'   => 'simialbi\yii2\rest\Connection',
+            'class' => 'simialbi\yii2\rest\Connection',
             'baseUrl' => 'https://api.site.com/',
             // 'auth' => function (simialbi\yii2\rest\Connection $db) {
             //      return 'Bearer: <mytoken>';
@@ -44,6 +44,7 @@ To use this extension, configure restclient component in your application config
             // 'usePluralisation' => false,
             // 'useFilterKeyword' => false,
             // 'enableExceptions' => true,
+            // 'itemsProperty' => 'items'
         ],
     ],
 ```
@@ -54,7 +55,8 @@ To use this extension, configure restclient component in your application config
 | `auth`             | Either a Closure which returns a `string` or a `string`. The rest connection will be passed as parameter.        |
 | `usePluralisation` | Whether to use plural version for lists (index action) or not (e.g. http://api.site.com/users instead of `user`) |
 | `useFilterKeyword` | Whether to use "filter" key word in url parameters when filtering (e.g. ?filter[name]=user instead of ?name=user |
-| `enableExceptions` | Whether the connection should throw an exception if response is not 200 or not                                   | 
+| `enableExceptions` | Whether the connection should throw an exception if response is not 200 or not                                   |
+| `itemsProperty`    | If your items are wrapped inside a property (e.g. `items`), set it's name here                                   | 
 
 ## Usage
 Define your Model
