@@ -68,6 +68,7 @@ class Command extends Component
         $this->queryCacheDependency = $dependency;
         return $this;
     }
+
     /**
      * Disables query cache for this command.
      * @return $this the command object itself
@@ -225,7 +226,16 @@ class Command extends Component
             }
         }
 
-        return $this->db->$method($this->pathInfo, $this->queryParams);
+        $result = $this->db->$method($this->pathInfo, $this->queryParams);
+        if ($this->db->itemsProperty) {
+            $result = ArrayHelper::getValue($result, $this->db->itemsProperty, []);
+        }
+        if (isset($cache, $cacheKey, $info)) {
+            $cache->set($cacheKey, [$result], $info[1], $info[2]);
+            Yii::debug('Saved query result in cache', 'simialbi\yii2\rest\Command::query');
+        }
+
+        return $result;
     }
 
     /**

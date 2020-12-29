@@ -98,6 +98,11 @@ class Connection extends Component
      * @see enableQueryCache
      */
     public $queryCache = 'cache';
+    /**
+     * @var string|null the name of the property in the response where the items are wrapped. If not set, there is no
+     * wrapping property.
+     */
+    public $itemsProperty;
 
     /**
      * @var string|Closure authorization config
