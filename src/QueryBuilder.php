@@ -119,7 +119,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
     }
 
     /**
-     * {@inheritdoc}
+     * {@inheritDoc}
      */
     public function buildJoin($joins, &$params)
     {
@@ -128,12 +128,8 @@ class QueryBuilder extends \yii\db\QueryBuilder
         }
 
         $expand = [];
-        foreach ($joins as $i => $join) {
+        foreach ($joins as $join) {
             if (empty($join)) {
-                continue;
-            }
-            if (is_array($join)) {
-                $expand[] = $join[1];
                 continue;
             }
             $expand[] = $join;

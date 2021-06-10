@@ -26,6 +26,11 @@ class ActiveRecord extends BaseActiveRecord
     private $_attributeFields = [];
 
     /**
+     * @var array
+     */
+    private $_relations = [];
+
+    /**
      * @return array
      * @throws \ReflectionException
      */
@@ -49,6 +54,28 @@ class ActiveRecord extends BaseActiveRecord
         }
 
         return $this->_attributeFields;
+    }
+
+    /**
+     * Relation getter
+     * @return array
+     */
+    public function getRelations()
+    {
+        if (empty($this->_relations)) {
+            $regex = '#^@property-read(?:(?:\s+)([^\s]+))?(?:\s+)\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
+            $reflection = new \ReflectionClass($this);
+            $docLines = preg_split('~\R~u', $reflection->getDocComment());
+            foreach ($docLines as $docLine) {
+                $matches = [];
+                $docLine = ltrim($docLine, "\t* ");
+                if (preg_match($regex, $docLine, $matches) && isset($matches[2])) {
+                    $this->_relations[$matches[2]] = $matches[1];
+                }
+            }
+        }
+
+        return $this->_relations;
     }
 
     /**
@@ -194,7 +221,6 @@ class ActiveRecord extends BaseActiveRecord
 
         return $rows;
     }
-
 
     /**
      * {@inheritdoc}

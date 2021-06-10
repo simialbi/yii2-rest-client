@@ -9,6 +9,7 @@
 namespace simialbi\yii2\rest;
 
 use Yii;
+use yii\base\NotSupportedException;
 use yii\db\QueryInterface;
 
 /**
@@ -175,6 +176,15 @@ class Query extends \yii\db\Query implements QueryInterface
     public function setModelClass($modelClass)
     {
         $this->_modelClass = $modelClass;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @throws NotSupportedException
+     */
+    public function join($type, $table, $on = '', $params = [])
+    {
+        throw new NotSupportedException('Joins are not supported in rest applications');
     }
 
     /**
