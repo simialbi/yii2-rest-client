@@ -74,14 +74,14 @@ class Connection extends Component
     public $useFilterKeyword = true;
 
     /**
-     * @var boolean Whether the connection should throw an exception if response is not 200 or not
-     */
-    public $enableExceptions = false;
-
-    /**
      * @var string The method to use for update operations. Defaults to [[put]].
      */
     public $updateMethod = 'put';
+
+    /**
+     * @var boolean Whether the connection should throw an exception if response is not 200 or not
+     */
+    public $enableExceptions = false;
 
     /**
      * @var boolean Whether we are in test mode or not (prevent execution)
