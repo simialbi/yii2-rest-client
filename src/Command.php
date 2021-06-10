@@ -171,12 +171,13 @@ class Command extends Component
      */
     public function update($model, $data = [], $id = null)
     {
+        $method = $this->db->updateMethod;
         $this->pathInfo = $model;
         if ($id) {
             $this->pathInfo .= '/' . $id;
         }
 
-        return $this->db->put($this->pathInfo, $data);
+        return $this->db->$method($this->pathInfo, $data);
     }
 
     /**

@@ -42,38 +42,52 @@ class Connection extends Component
      * @event Event an event that is triggered after a DB connection is established
      */
     const EVENT_AFTER_OPEN = 'afterOpen';
+
     /**
      * @var Client
      */
     protected static $_handler = null;
+
     /**
      * @var string base request URL.
      */
     public $baseUrl = '';
+
     /**
      * @var array request object configuration.
      */
     public $requestConfig = [];
+
     /**
      * @var array response config configuration.
      */
     public $responseConfig = [];
+
     /**
      * @var boolean Whether to use pluralisation or not
      */
     public $usePluralisation = true;
+
     /**
      * @var boolean Whether to use filter keyword or not
      */
     public $useFilterKeyword = true;
+
     /**
      * @var boolean Whether the connection should throw an exception if response is not 200 or not
      */
     public $enableExceptions = false;
+
+    /**
+     * @var string The method to use for update operations. Defaults to [[put]].
+     */
+    public $updateMethod = 'put';
+
     /**
      * @var boolean Whether we are in test mode or not (prevent execution)
      */
     public $isTestMode = false;
+
     /**
      * @var bool whether to enable query caching.
      * Note that in order to enable query caching, a valid cache component as specified
@@ -84,6 +98,7 @@ class Connection extends Component
      * @see noCache()
      */
     public $enableQueryCache = false;
+
     /**
      * @var int the default number of seconds that query results can remain valid in cache.
      * Defaults to 3600, meaning 3600 seconds, or one hour. Use 0 to indicate that the cached data will never expire.
@@ -92,12 +107,14 @@ class Connection extends Component
      * @see cache()
      */
     public $queryCacheDuration = 3600;
+
     /**
      * @var CacheInterface|string the cache object or the ID of the cache application component
      * that is used for query caching.
      * @see enableQueryCache
      */
     public $queryCache = 'cache';
+
     /**
      * @var string|null the name of the property in the response where the items are wrapped. If not set, there is no
      * wrapping property.
