@@ -196,41 +196,43 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             $modelClass = get_class($model);
             $modelClass::populateRecord($model, $row);
             $models[] = $model;
-            foreach ($this->join as $join) {
-                $relationRows = ArrayHelper::remove($row, $join, []);
-                if (empty($relationRows)) {
-                    continue;
-                }
-                if (isset($relations[$join])) {
-                    $relationClass = $relations[$join];
-                    if (!class_exists($relationClass)) {
-                        if (strpos($relationClass, '\\') === false && null === $namespace) {
-                            $r = new \ReflectionClass($this->modelClass);
-                            $namespace = $r->getNamespaceName();
-                        }
-
-                        if (class_exists($namespace . '\\' . $relationClass)) {
-                            $relationClass = $namespace . '\\' . $relationClass;
-                        }
+            if (is_array($this->join)) {
+                foreach ($this->join as $join) {
+                    $relationRows = ArrayHelper::remove($row, $join, []);
+                    if (empty($relationRows)) {
+                        continue;
                     }
-                    if (class_exists($relationClass)) {
-                        /** @var ActiveRecord $relationClass */
-                        if (ArrayHelper::isAssociative($relationRows)) {
-                            $relationModel = $relationClass::instantiate($relationRows);
-                            $relationClass::populateRecord($relationModel, $relationRows);
-                            $model->populateRelation($join, $relationModel);
-                        } else {
-                            $populatedRows = [];
-                            foreach ($relationRows as $relationRow) {
-                                $relationModel = $relationClass::instantiate($relationRow);
-                                $relationClass::populateRecord($relationModel, $relationRow);
-                                $populatedRows[] = $relationModel;
+                    if (isset($relations[$join])) {
+                        $relationClass = $relations[$join];
+                        if (!class_exists($relationClass)) {
+                            if (strpos($relationClass, '\\') === false && null === $namespace) { //TODO: search for usages instead of comparing namespace
+                                $r = new \ReflectionClass($this->modelClass);
+                                $namespace = $r->getNamespaceName();
                             }
-                            $model->populateRelation($join, $populatedRows);
+
+                            if (class_exists($namespace . '\\' . $relationClass)) {
+                                $relationClass = $namespace . '\\' . $relationClass;
+                            }
                         }
+                        if (class_exists($relationClass)) {
+                            /** @var ActiveRecord $relationClass */
+                            if (ArrayHelper::isAssociative($relationRows)) {
+                                $relationModel = $relationClass::instantiate($relationRows);
+                                $relationClass::populateRecord($relationModel, $relationRows);
+                                $model->populateRelation($join, $relationModel);
+                            } else {
+                                $populatedRows = [];
+                                foreach ($relationRows as $relationRow) {
+                                    $relationModel = $relationClass::instantiate($relationRow);
+                                    $relationClass::populateRecord($relationModel, $relationRow);
+                                    $populatedRows[] = $relationModel;
+                                }
+                                $model->populateRelation($join, $populatedRows);
+                            }
+                        }
+                    } else {
+                        $model->populateRelation($join, ArrayHelper::remove($row, $join, []));
                     }
-                } else {
-                    $model->populateRelation($join, ArrayHelper::remove($row, $join, []));
                 }
             }
         }

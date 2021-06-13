@@ -129,7 +129,6 @@ class ActiveRecord extends BaseActiveRecord
         return static::getDb()->usePluralisation ? Inflector::pluralize($path) : $path;
     }
 
-
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
@@ -167,10 +166,10 @@ class ActiveRecord extends BaseActiveRecord
         }
         foreach ($data as $name => $value) {
             $this->setAttribute($name, $value);
+            $this->setOldAttribute($name, $value);
         }
 
         $changedAttributes = array_fill_keys(array_keys($values), null);
-        $this->setOldAttributes($values);
         $this->afterSave(true, $changedAttributes);
 
         return true;
