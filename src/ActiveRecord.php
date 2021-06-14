@@ -37,7 +37,7 @@ class ActiveRecord extends BaseActiveRecord
     public function attributes()
     {
         if (empty($this->_attributeFields)) {
-            $regex = '#^@property(?:-(read|write))?(?:(?:\s+)([^\s]+))?(?:\s+)\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
+            $regex = '#^@property(?:-(read|write))?(?:\s+([^\s]+))?\s+\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
             $typeRegex = '#^(bool(ean)?|int(eger)?|float|double|string|array)$#';
             $reflection = new \ReflectionClass($this);
             $docLines = preg_split('~\R~u', $reflection->getDocComment());
@@ -63,7 +63,7 @@ class ActiveRecord extends BaseActiveRecord
     public function getRelations()
     {
         if (empty($this->_relations)) {
-            $regex = '#^@property-read(?:(?:\s+)([^\s]+))?(?:\s+)\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
+            $regex = '#^@property-read(?:\s+([^\s \[\]]+)(?:\[\])?)?\s+\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
             $reflection = new \ReflectionClass($this);
             $docLines = preg_split('~\R~u', $reflection->getDocComment());
             foreach ($docLines as $docLine) {
@@ -80,10 +80,11 @@ class ActiveRecord extends BaseActiveRecord
 
     /**
      * {@inheritdoc}
+     * @throws InvalidConfigException
      */
     public static function primaryKey()
     {
-        new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
+        throw new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
     }
 
     /**

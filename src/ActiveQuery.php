@@ -72,7 +72,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function one($db = null)
     {
         $row = parent::one($db);
-        if ($row !== false) {
+        if (!empty($row)) {
             $models = $this->populate(isset($row[0]) ? $row : [$row]);
 
             return reset($models) ?: null;
@@ -205,7 +205,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                     if (isset($relations[$join])) {
                         $relationClass = $relations[$join];
                         if (!class_exists($relationClass)) {
-                            if (strpos($relationClass, '\\') === false && null === $namespace) { //TODO: search for usages instead of comparing namespace
+                            if (null === $namespace && strpos($relationClass, '\\') === false) {
                                 $r = new \ReflectionClass($this->modelClass);
                                 $namespace = $r->getNamespaceName();
                             }

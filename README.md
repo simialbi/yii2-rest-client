@@ -91,13 +91,6 @@ class MyModel extends ActiveRecord {
     public static function primaryKey() {
         return ['id'];
     }
-	
-    /**
-     * @return mixed
-     */
-    public function getMyOtherModel(){
-        return $this->hasOne(MyOtherModel::class, ['my_model_id' => 'id']);
-    }
 }
 
 /**
@@ -116,13 +109,6 @@ class MyOtherModel extends ActiveRecord {
     public static function primaryKey() {
         return ['id'];
     }
-	
-    /**
-     * @return mixed
-     */
-    public function getMyModels(){
-        return $this->hasMany(MyModel::class, ['id' => 'my_model_id']);
-    }
 }
 ```
 
@@ -134,6 +120,10 @@ The usage how to define the active record (rules, behaviors etc.) is the same li
 
 > Important: Be sure to either define the properties of the object like in the example above (`@property` syntax in phpdoc) 
 > or override the `attributes()` method to return the allowed attributes as array
+
+> The same about relations. Be sure to either define them via `@property-read` phpdoc comment or override the `getRelations`
+> method. If the related class has not the same namespace as the main class, be sure to use the fully qualified class name
+> (e.g. `@property-read \app\models\OtherModel[] $otherModels`)
 
 ## License
 
