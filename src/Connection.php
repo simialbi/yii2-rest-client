@@ -16,6 +16,7 @@ use yii\caching\CacheInterface;
 use yii\httpclient\Client;
 use yii\httpclient\Response;
 use yii\web\HeaderCollection;
+use simialbi\yii2\rest\Exception as RestException;
 
 /**
  * Class Connection
@@ -25,9 +26,7 @@ use yii\web\HeaderCollection;
  * 'components' => [
  *     'restclient' => [
  *         'class' => 'simialbi\yii2\rest\Connection',
- *         'config' => [
- *             'base_uri' => 'https://api.site.com/',
- *         ],
+ *         'baseUrl' => 'https://api.site.com/',
  *     ],
  * ],
  * ```
@@ -496,13 +495,13 @@ class Connection extends Component
         try {
             $this->_response = $this->isTestMode ? [] : $request->send();
         } catch (\yii\httpclient\Exception $e) {
-            throw new Exception('Request failed', [], 1, $e);
+            throw new RestException('Request failed', [], 1, $e);
         }
         Yii::endProfile($profile, __METHOD__);
 
         if (!$this->isTestMode && !$this->_response->isOk) {
             if ($this->enableExceptions) {
-                throw new Exception($this->_response->content, $this->_response->headers->toArray());
+                throw new RestException($this->_response->content, $this->_response->headers->toArray());
             }
             return false;
         }
