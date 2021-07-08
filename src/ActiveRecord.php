@@ -32,7 +32,7 @@ class ActiveRecord extends BaseActiveRecord
     public function attributes()
     {
         if (empty($this->_attributeFields)) {
-            $regex = '#^@property(?:-(read|write))?(?:(?:\s+)([^\s]+))?(?:\s+)\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
+            $regex = '#^@property(?:-(read|write))?(?:\s+([^\s]+))?\s+\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
             $typeRegex = '#^(bool(ean)?|int(eger)?|float|double|string|array)$#';
             $reflection = new \ReflectionClass($this);
             $docLines = preg_split('~\R~u', $reflection->getDocComment());
@@ -53,10 +53,11 @@ class ActiveRecord extends BaseActiveRecord
 
     /**
      * {@inheritdoc}
+     * @throws InvalidConfigException
      */
     public static function primaryKey()
     {
-        new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
+        throw new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
     }
 
     /**
@@ -221,5 +222,23 @@ class ActiveRecord extends BaseActiveRecord
     public function unlinkAll($name, $delete = false)
     {
         throw new NotSupportedException('unlinkAll() is not supported by RestClient, use unlink() instead.');
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function hasOne($class, $link)
+    {
+        return parent::hasOne($class, $link);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function hasMany($class, $link)
+    {
+        return parent::hasMany($class, $link);
     }
 }

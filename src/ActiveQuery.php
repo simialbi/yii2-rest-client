@@ -58,30 +58,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * {@inheritdoc}
-     */
-    public function all($db = null)
-    {
-        return parent::all($db);
-    }
-
-    /**
-     * {@inheritdoc}
-     * @throws InvalidConfigException
-     */
-    public function one($db = null)
-    {
-        $row = parent::one($db);
-        if ($row !== false) {
-            $models = $this->populate(isset($row[0]) ? $row : [$row]);
-
-            return reset($models) ?: null;
-        }
-
-        return null;
-    }
-
-    /**
-     * {@inheritdoc}
      * @throws InvalidConfigException
      */
     public function prepare($builder)
@@ -135,6 +111,214 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
+     * Builds join with clauses
+     */
+    private function buildJoinWith()
+    {
+        $join = $this->join;
+        $this->join = [];
+        $model = new $this->modelClass();
+        foreach ($this->joinWith as $with) {
+            $this->joinWithRelations($model, $with);
+            foreach ($with as $name => $callback) {
+                $this->innerJoin(is_int($name) ? $callback : [$name => $callback]);
+                unset($with[$name]);
+            }
+        }
+        if (!empty($join)) {
+            // append explicit join to joinWith()
+            // https://github.com/yiisoft/yii2/issues/2880
+            $this->join = empty($this->join) ? $join : array_merge($this->join, $join);
+        }
+    }
+
+    /**
+     * Modifies the current query by adding join fragments based on the given relations.
+     * @param ActiveRecord $model the primary model
+     * @param array $with the relations to be joined
+     */
+    protected function joinWithRelations($model, $with)
+    {
+        foreach ($with as $name => $callback) {
+            if (is_int($name)) {
+                $name = $callback;
+                $callback = null;
+            }
+            $primaryModel = $model;
+            $parent = $this;
+            if (!isset($relations[$name])) {
+                $relations[$name] = $relation = $primaryModel->getRelation($name);
+                /* @var $relation static */
+                if ($callback !== null) {
+                    call_user_func($callback, $relation);
+                }
+                if (!empty($relation->joinWith)) {
+                    $relation->buildJoinWith();
+                }
+                $this->joinWithRelation($parent, $relation);
+            }
+        }
+    }
+
+    /**
+     * Joins a parent query with a child query.
+     * The current query object will be modified accordingly.
+     *
+     * @param ActiveQuery $parent
+     * @param ActiveQuery $child
+     */
+    private function joinWithRelation($parent, $child)
+    {
+        if (!empty($child->join)) {
+            foreach ($child->join as $join) {
+                $this->join[] = $join;
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function all($db = null)
+    {
+        return parent::all($db);
+    }
+
+    /**
+     * {@inheritdoc}
+     * @throws InvalidConfigException
+     */
+    public function one($db = null)
+    {
+        $row = parent::one($db);
+        if ($row !== false) {
+            $models = $this->populate(isset($row[0]) ? $row : [$row]);
+
+            return reset($models) ?: null;
+        }
+
+        return null;
+    }
+
+
+    /**
+     * {@inheritdoc}
+     * @throws InvalidConfigException
+     */
+    public function populate($rows)
+    {
+        if (empty($rows)) {
+            return [];
+        }
+
+        $models = $this->createModels($rows);
+        if (!empty($this->join) && $this->indexBy === null) {
+            $models = $this->removeDuplicatedModels($models);
+        }
+        if (!empty($this->with)) {
+            $this->findWith($this->with, $models);
+        }
+        if (!$this->asArray) {
+            foreach ($models as $model) {
+                $model->afterFind();
+            }
+        } elseif ($this->indexBy !== null) {
+            $models = ArrayHelper::index($models, $this->indexBy);
+        }
+
+        return $models;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    protected function createModels($rows)
+    {
+        if ($this->asArray) {
+            return $rows;
+        } else {
+            $models = [];
+            /* @var $class ActiveRecord */
+            $class = $this->modelClass;
+            foreach ($rows as $row) {
+                $model = $class::instantiate($row);
+                /** @var $modelClass ActiveRecord */
+                $modelClass = get_class($model);
+                $modelClass::populateRecord($model, $row);
+                if (!empty($this->join)) {
+                    foreach ($this->join as $join) {
+                        if (isset($join[1], $row[$join[1]])) {
+                            $relation = $model->getRelation($join[1]);
+                            $rows = (ArrayHelper::isAssociative($row[$join[1]])) ? [$row[$join[1]]] : $row[$join[1]];
+                            $relations = $relation->populate($rows);
+                            $model->populateRelation($join[1], $relation->multiple ? $relations : $relations[0]);
+                        }
+                    }
+                }
+                $models[] = $model;
+            }
+            return $models;
+        }
+    }
+
+    /**
+     * Removes duplicated models by checking their primary key values.
+     * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
+     *
+     * @param array $models the models to be checked
+     *
+     * @return array the distinctive models
+     * @throws InvalidConfigException if model primary key is empty
+     */
+    private function removeDuplicatedModels($models)
+    {
+        $hash = [];
+        /* @var $class ActiveRecord */
+        $class = $this->modelClass;
+        $pks = $class::primaryKey();
+
+        if (count($pks) > 1) {
+            // composite primary key
+            foreach ($models as $i => $model) {
+                $key = [];
+                foreach ($pks as $pk) {
+                    if (!isset($model[$pk])) {
+                        // do not continue if the primary key is not part of the result set
+                        break 2;
+                    }
+                    $key[] = $model[$pk];
+                }
+                $key = serialize($key);
+                if (isset($hash[$key])) {
+                    unset($models[$i]);
+                } else {
+                    $hash[$key] = true;
+                }
+            }
+        } elseif (empty($pks)) {
+            /** @var $class string */
+            throw new InvalidConfigException("Primary key of '{$class}' can not be empty.");
+        } else {
+            // single column primary key
+            $pk = reset($pks);
+            foreach ($models as $i => $model) {
+                if (!isset($model[$pk])) {
+                    // do not continue if the primary key is not part of the result set
+                    break;
+                }
+                $key = $model[$pk];
+                if (isset($hash[$key])) {
+                    unset($models[$i]);
+                } elseif ($key !== null) {
+                    $hash[$key] = true;
+                }
+            }
+        }
+
+        return array_values($models);
+    }
+
+    /**
      * Joins with the specified relations.
      *
      * This method allows you to reuse existing relation definitions to perform JOIN queries.
@@ -172,155 +356,5 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $this->joinWith[] = (array)$with;
         return $this;
-    }
-
-    /**
-     * Builds join with clauses
-     */
-    private function buildJoinWith()
-    {
-        $join = $this->join;
-        $this->join = [];
-        $model = new $this->modelClass();
-        foreach ($this->joinWith as $with) {
-            $this->joinWithRelations($model, $with);
-            foreach ($with as $name => $callback) {
-                $this->innerJoin(is_int($name) ? $callback : [$name => $callback]);
-                unset($with[$name]);
-            }
-        }
-        if (!empty($join)) {
-            // append explicit join to joinWith()
-            // https://github.com/yiisoft/yii2/issues/2880
-            $this->join = empty($this->join) ? $join : array_merge($this->join, $join);
-        }
-    }
-
-
-    /**
-     * Modifies the current query by adding join fragments based on the given relations.
-     * @param ActiveRecord $model the primary model
-     * @param array $with the relations to be joined
-     */
-    protected function joinWithRelations($model, $with)
-    {
-        foreach ($with as $name => $callback) {
-            if (is_int($name)) {
-                $name = $callback;
-                $callback = null;
-            }
-            $primaryModel = $model;
-            $parent = $this;
-            if (!isset($relations[$name])) {
-                $relations[$name] = $relation = $primaryModel->getRelation($name);
-                /* @var $relation static */
-                if ($callback !== null) {
-                    call_user_func($callback, $relation);
-                }
-                if (!empty($relation->joinWith)) {
-                    $relation->buildJoinWith();
-                }
-                $this->joinWithRelation($parent, $relation);
-            }
-        }
-    }
-    /**
-     * Joins a parent query with a child query.
-     * The current query object will be modified accordingly.
-     *
-     * @param ActiveQuery $parent
-     * @param ActiveQuery $child
-     */
-    private function joinWithRelation($parent, $child)
-    {
-        if (!empty($child->join)) {
-            foreach ($child->join as $join) {
-                $this->join[] = $join;
-            }
-        }
-    }
-
-    /**
-     * {@inheritdoc}
-     * @throws InvalidConfigException
-     */
-    public function populate($rows)
-    {
-        if (empty($rows)) {
-            return [];
-        }
-
-        $models = $this->createModels($rows);
-        if (!empty($this->join) && $this->indexBy === null) {
-            $models = $this->removeDuplicatedModels($models);
-        }
-        if (!empty($this->with)) {
-            $this->findWith($this->with, $models);
-        }
-        if (!$this->asArray) {
-            foreach ($models as $model) {
-                $model->afterFind();
-            }
-        } elseif ($this->indexBy !== null) {
-            $models = ArrayHelper::index($models, $this->indexBy);
-        }
-
-        return $models;
-    }
-
-    /**
-     * Removes duplicated models by checking their primary key values.
-     * This method is mainly called when a join query is performed, which may cause duplicated rows being returned.
-     *
-     * @param array $models the models to be checked
-     *
-     * @throws InvalidConfigException if model primary key is empty
-     * @return array the distinctive models
-     */
-    private function removeDuplicatedModels($models)
-    {
-        $hash = [];
-        /* @var $class ActiveRecord */
-        $class = $this->modelClass;
-        $pks = $class::primaryKey();
-
-        if (count($pks) > 1) {
-            // composite primary key
-            foreach ($models as $i => $model) {
-                $key = [];
-                foreach ($pks as $pk) {
-                    if (!isset($model[$pk])) {
-                        // do not continue if the primary key is not part of the result set
-                        break 2;
-                    }
-                    $key[] = $model[$pk];
-                }
-                $key = serialize($key);
-                if (isset($hash[$key])) {
-                    unset($models[$i]);
-                } else {
-                    $hash[$key] = true;
-                }
-            }
-        } elseif (empty($pks)) {
-            throw new InvalidConfigException("Primary key of '{$class}' can not be empty.");
-        } else {
-            // single column primary key
-            $pk = reset($pks);
-            foreach ($models as $i => $model) {
-                if (!isset($model[$pk])) {
-                    // do not continue if the primary key is not part of the result set
-                    break;
-                }
-                $key = $model[$pk];
-                if (isset($hash[$key])) {
-                    unset($models[$i]);
-                } elseif ($key !== null) {
-                    $hash[$key] = true;
-                }
-            }
-        }
-
-        return array_values($models);
     }
 }
