@@ -9,7 +9,6 @@
 namespace simialbi\yii2\rest;
 
 use Yii;
-use yii\base\NotSupportedException;
 use yii\db\QueryInterface;
 
 /**
@@ -42,6 +41,31 @@ class Query extends \yii\db\Query implements QueryInterface
     }
 
     /**
+     * {@inheritDoc}
+     */
+    public static function create($from)
+    {
+        $modelClass = ($from->hasProperty('modelClass')) ? $from->modelClass : null;
+
+        return new self($modelClass, [
+            'where' => $from->where,
+            'limit' => $from->limit,
+            'offset' => $from->offset,
+            'orderBy' => $from->orderBy,
+            'indexBy' => $from->indexBy,
+            'select' => $from->select,
+            'selectOption' => $from->selectOption,
+            'distinct' => $from->distinct,
+            'from' => $from->from,
+            'groupBy' => $from->groupBy,
+            'join' => $from->join,
+            'having' => $from->having,
+            'union' => $from->union,
+            'params' => $from->params,
+        ]);
+    }
+
+    /**
      * Prepares for building query.
      * This method is called by [[QueryBuilder]] when it starts to build SQL from a query object.
      * You may override this method to do some final preparation work when converting a query into a SQL statement.
@@ -53,6 +77,30 @@ class Query extends \yii\db\Query implements QueryInterface
     public function prepare($builder)
     {
         return $this;
+    }
+
+    /**
+     * Returns the number of records.
+     *
+     * @param string $q the COUNT expression. Defaults to '*'.
+     * @param Connection $db the database connection used to execute the query.
+     * If this parameter is not given, the `db` application component will be used.
+     *
+     * @return int number of records.
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\base\NotSupportedException
+     */
+    public function count($q = '*', $db = null): int
+    {
+        if ($this->emulateExecution) {
+            return 0;
+        }
+
+        $result = $this->createCommand($db)->execute('head');
+
+        /* @var $result \yii\web\HeaderCollection */
+        return $result->get('x-pagination-total-count');
     }
 
     /**
@@ -80,27 +128,16 @@ class Query extends \yii\db\Query implements QueryInterface
     }
 
     /**
-     * Returns the number of records.
-     *
-     * @param string $q the COUNT expression. Defaults to '*'.
-     * @param Connection $db the database connection used to execute the query.
-     * If this parameter is not given, the `db` application component will be used.
-     *
-     * @return int number of records.
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
-     * @throws \yii\base\NotSupportedException
+     * {@inheritDoc}
+     * @param Command $command
+     * @return Command
      */
-    public function count($q = '*', $db = null): int
+    protected function setCommandCache($command): Command
     {
-        if ($this->emulateExecution) {
-            return 0;
-        }
-
-        $result = $this->createCommand($db)->execute('head');
-
-        /* @var $result \yii\web\HeaderCollection */
-        return $result->get('x-pagination-total-count');
+        /** @var \yii\db\Command $command */
+        $command = parent::setCommandCache($command);
+        /** @var Command $command */
+        return $command;
     }
 
     /**
@@ -136,31 +173,6 @@ class Query extends \yii\db\Query implements QueryInterface
     }
 
     /**
-     * {@inheritDoc}
-     */
-    public static function create($from)
-    {
-        $modelClass = ($from->hasProperty('modelClass')) ? $from->modelClass : null;
-
-        return new self($modelClass, [
-            'where' => $from->where,
-            'limit' => $from->limit,
-            'offset' => $from->offset,
-            'orderBy' => $from->orderBy,
-            'indexBy' => $from->indexBy,
-            'select' => $from->select,
-            'selectOption' => $from->selectOption,
-            'distinct' => $from->distinct,
-            'from' => $from->from,
-            'groupBy' => $from->groupBy,
-            'join' => $from->join,
-            'having' => $from->having,
-            'union' => $from->union,
-            'params' => $from->params,
-        ]);
-    }
-
-    /**
      * Getter for modelClass
      * @return mixed
      */
@@ -176,27 +188,5 @@ class Query extends \yii\db\Query implements QueryInterface
     public function setModelClass($modelClass)
     {
         $this->_modelClass = $modelClass;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @throws NotSupportedException
-     */
-    public function join($type, $table, $on = '', $params = [])
-    {
-        throw new NotSupportedException('Joins are not supported in rest applications');
-    }
-
-    /**
-     * {@inheritDoc}
-     * @param Command $command
-     * @return Command
-     */
-    protected function setCommandCache($command): Command
-    {
-        /** @var \yii\db\Command $command */
-        $command = parent::setCommandCache($command);
-        /** @var Command $command */
-        return $command;
     }
 }
