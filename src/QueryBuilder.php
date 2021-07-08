@@ -66,7 +66,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      * @throws \yii\db\Exception
      * @throws NotSupportedException
      */
-    public function build($query, $params = [])
+    public function build($query, $params = []): array
     {
         $query = $query->prepare($this);
 
@@ -94,7 +94,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
     /**
      * {@inheritdoc}
      */
-    public function buildSelect($columns, &$params, $distinct = false, $selectOptions = null)
+    public function buildSelect($columns, &$params, $distinct = false, $selectOption = null): string
     {
         if (!empty($columns) && is_array($columns)) {
             return implode($this->separator, $columns);
@@ -109,7 +109,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      *
      * @return string the model name
      */
-    public function buildFrom($tables, &$params)
+    public function buildFrom($tables, &$params): string
     {
         if (!is_string($tables)) {
             return '';
@@ -121,7 +121,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
     /**
      * {@inheritDoc}
      */
-    public function buildJoin($joins, &$params)
+    public function buildJoin($joins, &$params): string
     {
         if (empty($joins)) {
             return '';
@@ -143,9 +143,8 @@ class QueryBuilder extends \yii\db\QueryBuilder
      * @param array $params the binding parameters to be populated
      *
      * @return array the WHERE clause built from [[Query::$where]].
-     * @throws NotSupportedException
      */
-    public function buildWhere($condition, &$params)
+    public function buildWhere($condition, &$params): array
     {
         $where = $this->buildCondition($condition, $params);
 
@@ -157,7 +156,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      *
      * @return array
      */
-    public function buildCondition($condition, &$params)
+    public function buildCondition($condition, &$params): array
     {
         if ($condition instanceof Expression || empty($condition) || !is_array($condition)) {
             return [];
@@ -174,7 +173,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      *
      * @return array
      */
-    public function buildExpression(ExpressionInterface $expression, &$params = [])
+    public function buildExpression(ExpressionInterface $expression, &$params = []): array
     {
         return (array)parent::buildExpression($expression, $params);
     }
@@ -182,7 +181,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
     /**
      * {@inheritdoc}
      */
-    protected function defaultExpressionBuilders()
+    protected function defaultExpressionBuilders(): array
     {
         return [
             'yii\db\Query' => 'yii\db\QueryExpressionBuilder',
@@ -205,7 +204,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
     /**
      * {@inheritdoc}
      */
-    public function buildOrderBy($columns)
+    public function buildOrderBy($columns): string
     {
         if (empty($columns)) {
             return '';

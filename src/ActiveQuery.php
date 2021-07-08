@@ -38,7 +38,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @throws \yii\db\Exception
      * @throws \yii\base\NotSupportedException
      */
-    public function createCommand($db = null)
+    public function createCommand($db = null): Command
     {
         /**
          * @var ActiveRecord $modelClass
@@ -137,7 +137,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveRecord $model the primary model
      * @param array $with the relations to be joined
      */
-    protected function joinWithRelations($model, $with)
+    protected function joinWithRelations(ActiveRecord $model, array $with)
     {
         foreach ($with as $name => $callback) {
             if (is_int($name)) {
@@ -167,7 +167,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @param ActiveQuery $parent
      * @param ActiveQuery $child
      */
-    private function joinWithRelation($parent, $child)
+    private function joinWithRelation(ActiveQuery $parent, ActiveQuery $child)
     {
         if (!empty($child->join)) {
             foreach ($child->join as $join) {
@@ -205,7 +205,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * {@inheritdoc}
      * @throws InvalidConfigException
      */
-    public function populate($rows)
+    public function populate($rows): array
     {
         if (empty($rows)) {
             return [];
@@ -232,7 +232,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * {@inheritDoc}
      */
-    protected function createModels($rows)
+    protected function createModels($rows): array
     {
         if ($this->asArray) {
             return $rows;
@@ -270,7 +270,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * @return array the distinctive models
      * @throws InvalidConfigException if model primary key is empty
      */
-    private function removeDuplicatedModels($models)
+    private function removeDuplicatedModels(array $models): array
     {
         $hash = [];
         /* @var $class ActiveRecord */
@@ -352,7 +352,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      *
      * @return $this the query object itself
      */
-    public function joinWith($with)
+    public function joinWith($with): ActiveQuery
     {
         $this->joinWith[] = (array)$with;
         return $this;

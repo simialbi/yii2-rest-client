@@ -24,7 +24,7 @@ class InConditionBuilder extends \yii\db\conditions\InConditionBuilder
      *
      * @return array
      */
-    public function build(ExpressionInterface $expression, array &$params = [])
+    public function build(ExpressionInterface $expression, array &$params = []): array
     {
         /* @var $expression InCondition */
 

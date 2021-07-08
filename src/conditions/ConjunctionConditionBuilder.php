@@ -24,7 +24,7 @@ class ConjunctionConditionBuilder extends \yii\db\conditions\ConjunctionConditio
      *
      * @return array
      */
-    public function build(ExpressionInterface $condition, array &$params = [])
+    public function build(ExpressionInterface $condition, array &$params = []): array
     {
         /* @var $condition ConjunctionCondition */
         $parts = $this->buildExpressionsFrom($condition, $params);

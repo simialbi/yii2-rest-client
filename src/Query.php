@@ -35,7 +35,7 @@ class Query extends \yii\db\Query implements QueryInterface
      * @param string $modelClass the model class associated with this query
      * @param array $config configurations to be applied to the newly created query object
      */
-    public function __construct($modelClass, $config = [])
+    public function __construct($modelClass, array $config = [])
     {
         $this->modelClass = $modelClass;
         parent::__construct($config);
@@ -66,7 +66,7 @@ class Query extends \yii\db\Query implements QueryInterface
      * @throws \yii\db\Exception
      * @throws \yii\base\NotSupportedException
      */
-    public function createCommand($db = null)
+    public function createCommand($db = null): Command
     {
         if ($db === null) {
             $db = Yii::$app->get(Connection::getDriverName());
@@ -91,7 +91,7 @@ class Query extends \yii\db\Query implements QueryInterface
      * @throws \yii\db\Exception
      * @throws \yii\base\NotSupportedException
      */
-    public function count($q = '*', $db = null)
+    public function count($q = '*', $db = null): int
     {
         if ($this->emulateExecution) {
             return 0;
@@ -109,7 +109,7 @@ class Query extends \yii\db\Query implements QueryInterface
      * @throws \yii\db\Exception
      * @throws \yii\base\NotSupportedException
      */
-    public function exists($db = null)
+    public function exists($db = null): bool
     {
         if ($this->emulateExecution) {
             return false;
@@ -128,7 +128,7 @@ class Query extends \yii\db\Query implements QueryInterface
      *
      * @return $this the query object itself
      */
-    public function from($tables)
+    public function from($tables): Query
     {
         $this->from = $tables;
 
@@ -192,7 +192,7 @@ class Query extends \yii\db\Query implements QueryInterface
      * @param Command $command
      * @return Command
      */
-    protected function setCommandCache($command)
+    protected function setCommandCache($command): Command
     {
         /** @var \yii\db\Command $command */
         $command = parent::setCommandCache($command);

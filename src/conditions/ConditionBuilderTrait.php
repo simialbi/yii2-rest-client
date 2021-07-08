@@ -18,7 +18,7 @@ trait ConditionBuilderTrait
      * @param string $operator
      * @return string
      */
-    protected function getOperator($operator)
+    protected function getOperator(string $operator): string
     {
         return ArrayHelper::getValue(array_flip((new DataFilter())->filterControls), $operator, 'and');
     }

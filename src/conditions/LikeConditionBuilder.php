@@ -23,7 +23,7 @@ class LikeConditionBuilder extends \yii\db\conditions\LikeConditionBuilder
      *
      * @return array
      */
-    public function build(ExpressionInterface $expression, array &$params = [])
+    public function build(ExpressionInterface $expression, array &$params = []): array
     {
         /* @var $expression LikeCondition */
         $operator = $expression->getOperator();

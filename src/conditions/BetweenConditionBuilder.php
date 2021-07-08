@@ -24,7 +24,7 @@ class BetweenConditionBuilder extends \yii\db\conditions\BetweenConditionBuilder
      *
      * @return array
      */
-    public function build(ExpressionInterface $expression, array &$params = [])
+    public function build(ExpressionInterface $expression, array &$params = []): array
     {
         /* @var $expression BetweenCondition */
         $operator = $expression->getOperator();

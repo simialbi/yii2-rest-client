@@ -26,15 +26,10 @@ class ActiveRecord extends BaseActiveRecord
     private $_attributeFields = [];
 
     /**
-     * @var array
-     */
-    private $_relations = [];
-
-    /**
      * @return array
      * @throws \ReflectionException
      */
-    public function attributes()
+    public function attributes(): array
     {
         if (empty($this->_attributeFields)) {
             $regex = '#^@property(?:-(read|write))?(?:\s+([^\s]+))?\s+\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
@@ -57,28 +52,6 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * Relation getter
-     * @return array
-     */
-    public function getRelations()
-    {
-        if (empty($this->_relations)) {
-            $regex = '#^@property-read(?:\s+([^\s \[\]]+)(?:\[\])?)?\s+\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
-            $reflection = new \ReflectionClass($this);
-            $docLines = preg_split('~\R~u', $reflection->getDocComment());
-            foreach ($docLines as $docLine) {
-                $matches = [];
-                $docLine = ltrim($docLine, "\t* ");
-                if (preg_match($regex, $docLine, $matches) && isset($matches[2])) {
-                    $this->_relations[$matches[2]] = $matches[1];
-                }
-            }
-        }
-
-        return $this->_relations;
-    }
-
-    /**
      * {@inheritdoc}
      * @throws InvalidConfigException
      */
@@ -93,7 +66,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return ActiveQuery
      * @throws InvalidConfigException
      */
-    public static function find()
+    public static function find(): ActiveQuery
     {
         /* @var $query ActiveQuery */
         $query = Yii::createObject(ActiveQuery::class, [get_called_class()]);
@@ -102,15 +75,15 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @return null|Connection
      * @throws InvalidConfigException
      */
     public static function getDb()
     {
-        $connection = Yii::$app->get(Connection::getDriverName());
-
         /* @var $connection Connection */
-        return $connection;
+        return Yii::$app->get(Connection::getDriverName());
     }
 
     /**
@@ -124,7 +97,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return string the url path
      * @throws InvalidConfigException
      */
-    public static function modelName()
+    public static function modelName(): string
     {
         $path = Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
         return static::getDb()->usePluralisation ? Inflector::pluralize($path) : $path;
@@ -135,7 +108,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws InvalidConfigException
      * @throws Exception
      */
-    public function insert($runValidation = true, $attributes = null)
+    public function insert($runValidation = true, $attributes = null): bool
     {
         if ($runValidation && !$this->validate($attributes)) {
             Yii::info('Model not inserted due to validation error.', __METHOD__);
@@ -156,7 +129,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws InvalidConfigException
      * @throws Exception
      */
-    protected function insertInternal($attributes)
+    protected function insertInternal(array $attributes): bool
     {
         if (!$this->beforeSave(true)) {
             return false;
@@ -179,7 +152,6 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
-     * @throws \yii\httpclient\Exception
      */
     public function update($runValidation = true, $attributeNames = null)
     {
