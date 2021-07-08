@@ -248,4 +248,22 @@ class ActiveRecord extends BaseActiveRecord
     {
         throw new NotSupportedException('unlinkAll() is not supported by RestClient, use unlink() instead.');
     }
+
+    /**
+     * {@inheritDoc}
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function hasOne($class, $link)
+    {
+        return parent::hasOne($class, $link);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function hasMany($class, $link)
+    {
+        return parent::hasMany($class, $link);
+    }
 }
