@@ -7,7 +7,6 @@
 
 namespace yiiunit\extensions\rest;
 
-
 use Yii;
 use yiiunit\extensions\rest\fixtures\RestModelFixture;
 use yiiunit\extensions\rest\models\RestModel;

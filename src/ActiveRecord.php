@@ -55,7 +55,7 @@ class ActiveRecord extends BaseActiveRecord
      * {@inheritdoc}
      * @throws InvalidConfigException
      */
-    public static function primaryKey()
+    public static function primaryKey(): array
     {
         throw new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
     }

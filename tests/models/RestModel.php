@@ -7,7 +7,6 @@
 
 namespace yiiunit\extensions\rest\models;
 
-
 use simialbi\yii2\rest\ActiveRecord;
 
 /**
