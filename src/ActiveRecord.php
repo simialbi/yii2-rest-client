@@ -122,14 +122,14 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Inserts an ActiveRecord.
      *
-     * @param array $attributes list of attributes that need to be saved. Defaults to `null`,
+     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`,
      * meaning all attributes that are loaded from DB will be saved.
      *
      * @return boolean whether the record is inserted successfully.
      * @throws InvalidConfigException
      * @throws Exception
      */
-    protected function insertInternal(array $attributes): bool
+    protected function insertInternal($attributes): bool
     {
         if (!$this->beforeSave(true)) {
             return false;
