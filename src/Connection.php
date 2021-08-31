@@ -479,7 +479,7 @@ class Connection extends Component
         if ($auth = $this->getAuth()) {
             $headers['Authorization'] = $auth;
         }
-        if ($method === 'head') {
+        if ($method === 'HEAD') {
             $data = $headers;
             $headers = [];
         }
