@@ -12,7 +12,7 @@ class Exception extends \yii\db\Exception
     /**
      * {@inheritDoc}
      */
-    public function getName()
+    public function getName(): string
     {
         return 'REST Exception';
     }

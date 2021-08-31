@@ -24,7 +24,7 @@ class NotConditionBuilder extends \yii\db\conditions\NotConditionBuilder
      *
      * @return array
      */
-    public function build(ExpressionInterface $expression, array &$params = [])
+    public function build(ExpressionInterface $expression, array &$params = []): array
     {
         /* @var $expression NotCondition */
         $operand = $expression->getCondition();

@@ -7,7 +7,6 @@
 
 namespace yiiunit\extensions\rest\models;
 
-
 use simialbi\yii2\rest\ActiveRecord;
 
 /**
@@ -23,6 +22,7 @@ use simialbi\yii2\rest\ActiveRecord;
  * @property string $updated_by
  *
  * @property-read RelatedRestModel[] $relatedRests
+ * @property-read RelatedRestModel $relatedRest
  */
 class RestModel extends ActiveRecord
 {
@@ -41,5 +41,14 @@ class RestModel extends ActiveRecord
     public function getRelatedRests()
     {
         return $this->hasMany(RelatedRestModel::class, ['rest_model_id' => 'id']);
+    }
+
+    /**
+     * Get related rest
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function getRelatedRest()
+    {
+        return $this->hasOne(RelatedRestModel::class, ['rest_model_id' => 'id']);
     }
 }

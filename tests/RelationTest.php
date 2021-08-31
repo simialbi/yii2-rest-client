@@ -7,7 +7,6 @@
 
 namespace yiiunit\extensions\rest;
 
-
 use Yii;
 use yiiunit\extensions\rest\fixtures\RestModelFixture;
 use yiiunit\extensions\rest\models\RestModel;
@@ -22,7 +21,7 @@ class RelationTest extends TestCase
         Yii::$app->log->logger->flush();
     }
 
-    public function testRelationGet()
+    public function testRelationGetAll()
     {
         $fixture = new RestModelFixture();
         $fixture->load();
@@ -36,6 +35,26 @@ class RelationTest extends TestCase
 
 //        var_dump($model);
         $model->getRelatedRests()->all();
+
+        $logEntry = $this->parseLogs();
+
+        $this->assertEquals('GET', $logEntry['method']);
+        $this->assertStringStartsWith('https://api.site.com/related-rest-models?filter%5Brest_model_id%5D=1', $logEntry['url']);
+    }
+
+    public function testRelationGetOne()
+    {
+        $fixture = new RestModelFixture();
+        $fixture->load();
+
+        /* @var $model RestModel */
+        $model = $fixture->getModel(0);
+
+        $this->assertInstanceOf(RestModel::class, $model);
+
+        Yii::$app->log->logger->flush();
+
+        $related = $model->relatedRest;
 
         $logEntry = $this->parseLogs();
 

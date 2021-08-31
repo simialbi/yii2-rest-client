@@ -35,7 +35,7 @@ To use this extension, configure restclient component in your application config
 ```php
     'components' => [
         'rest' => [
-            'class'   => 'simialbi\yii2\rest\Connection',
+            'class' => 'simialbi\yii2\rest\Connection',
             'baseUrl' => 'https://api.site.com/',
             // 'auth' => function (simialbi\yii2\rest\Connection $db) {
             //      return 'Bearer: <mytoken>';
@@ -44,17 +44,26 @@ To use this extension, configure restclient component in your application config
             // 'usePluralisation' => false,
             // 'useFilterKeyword' => false,
             // 'enableExceptions' => true,
+            // 'itemsProperty' => 'items'
         ],
     ],
 ```
 
-| Parameter          | Description                                                                                                      |
-| ------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| `baseUrl`          | The location of the api. E.g. for http://api.site.com/v1/users the `baseUrl` would be http://api.site.com/v1/    |
-| `auth`             | Either a Closure which returns a `string` or a `string`. The rest connection will be passed as parameter.        |
-| `usePluralisation` | Whether to use plural version for lists (index action) or not (e.g. http://api.site.com/users instead of `user`) |
-| `useFilterKeyword` | Whether to use "filter" key word in url parameters when filtering (e.g. ?filter[name]=user instead of ?name=user |
-| `enableExceptions` | Whether the connection should throw an exception if response is not 200 or not                                   | 
+| Parameter           | Default    | Description                                                                                                   |
+| ------------------- | -----------| ------------------------------------------------------------------------------------------------------------- |
+| `baseUrl`           | `''`       | The location of the api. E.g. for http://api.site.com/v1/users the `baseUrl` would be http://api.site.com/v1/  (required)   |
+| `auth`              |            | Either a Closure which returns a `string` or a `string`. The rest connection will be passed as parameter.        |
+| `usePluralisation`  | `true`     | Whether to use plural version for lists (index action) or not (e.g. http://api.site.com/users instead of `user`) |
+| `useFilterKeyword`  | `true`     | Whether to use "filter" key word in url parameters when filtering (e.g. ?filter[name]=user instead of ?name=user |
+| `enableExceptions`  | `false`    | Whether the connection should throw an exception if response is not 200 or not                                   |
+| `itemsProperty`     |            | If your items are wrapped inside a property (e.g. `items`), set it's name here                                   | 
+| `requestConfig`     | `[]`       |  Client request configuration                                                                                    | 
+| `responseConfig`    | `[]`       | Client response configuration                                                                                   | 
+| `updateMethod`      | `'put'`    | The method to use for update operations.                                                                        | 
+| `isTestMode`        | `false`    | Whether we are in test mode or not (prevent execution)                                                          | 
+| `enableQueryCache`  | `false`    | Whether to enable query caching                                                                                 | 
+| `queryCacheDuration`| `3600`     | The default number of seconds that query results can remain valid in cache                             | 
+| `queryCache`        | `'cache'`  | The cache object or the ID of the cache application component                                           | 
 
 ## Usage
 Define your Model
@@ -89,13 +98,6 @@ class MyModel extends ActiveRecord {
     public static function primaryKey() {
         return ['id'];
     }
-	
-    /**
-     * @return mixed
-     */
-    public function getMyOtherModel(){
-        return $this->hasOne(MyOtherModel::class, ['my_model_id' => 'id']);
-    }
 }
 
 /**
@@ -114,13 +116,6 @@ class MyOtherModel extends ActiveRecord {
     public static function primaryKey() {
         return ['id'];
     }
-	
-    /**
-     * @return mixed
-     */
-    public function getMyModels(){
-        return $this->hasMany(MyModel::class, ['id' => 'my_model_id']);
-    }
 }
 ```
 
@@ -132,6 +127,10 @@ The usage how to define the active record (rules, behaviors etc.) is the same li
 
 > Important: Be sure to either define the properties of the object like in the example above (`@property` syntax in phpdoc) 
 > or override the `attributes()` method to return the allowed attributes as array
+
+> The same about relations. Be sure to either define them via `@property-read` phpdoc comment or override the `getRelations`
+> method. If the related class has not the same namespace as the main class, be sure to use the fully qualified class name
+> (e.g. `@property-read \app\models\OtherModel[] $otherModels`)
 
 ## License
 

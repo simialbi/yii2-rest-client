@@ -34,104 +34,10 @@ class Query extends \yii\db\Query implements QueryInterface
      * @param string $modelClass the model class associated with this query
      * @param array $config configurations to be applied to the newly created query object
      */
-    public function __construct($modelClass, $config = [])
+    public function __construct($modelClass, array $config = [])
     {
         $this->modelClass = $modelClass;
         parent::__construct($config);
-    }
-
-    /**
-     * Prepares for building query.
-     * This method is called by [[QueryBuilder]] when it starts to build SQL from a query object.
-     * You may override this method to do some final preparation work when converting a query into a SQL statement.
-     *
-     * @param QueryBuilder $builder
-     *
-     * @return $this a prepared query instance which will be used by [[QueryBuilder]] to build the SQL
-     */
-    public function prepare($builder)
-    {
-        return $this;
-    }
-
-    /**
-     * Creates a DB command that can be used to execute this query.
-     *
-     * @param Connection $db the connection used to generate the statement.
-     * If this parameter is not given, the `rest` application component will be used.
-     *
-     * @return Command the created DB command instance.
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
-     * @throws \yii\base\NotSupportedException
-     */
-    public function createCommand($db = null)
-    {
-        if ($db === null) {
-            $db = Yii::$app->get(Connection::getDriverName());
-        }
-
-        $commandConfig = $db->getQueryBuilder()->build($this);
-        $command = $db->createCommand($commandConfig);
-        $this->setCommandCache($command);
-
-        return $command;
-    }
-
-    /**
-     * Returns the number of records.
-     *
-     * @param string $q the COUNT expression. Defaults to '*'.
-     * @param Connection $db the database connection used to execute the query.
-     * If this parameter is not given, the `db` application component will be used.
-     *
-     * @return int number of records.
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
-     * @throws \yii\base\NotSupportedException
-     */
-    public function count($q = '*', $db = null)
-    {
-        if ($this->emulateExecution) {
-            return 0;
-        }
-
-        $result = $this->createCommand($db)->execute('head');
-
-        /* @var $result \yii\web\HeaderCollection */
-        return $result->get('x-pagination-total-count');
-    }
-
-    /**
-     * {@inheritdoc}
-     * @throws \yii\base\InvalidConfigException
-     * @throws \yii\db\Exception
-     * @throws \yii\base\NotSupportedException
-     */
-    public function exists($db = null)
-    {
-        if ($this->emulateExecution) {
-            return false;
-        }
-
-        $result = $this->createCommand($db)->execute('head');
-
-        /* @var $result \yii\web\HeaderCollection */
-        return ($result->get('x-pagination-total-count', 0) > 0);
-    }
-
-    /**
-     * Sets the model to read from / write to
-     *
-     * @param string $tables
-     *
-     * @return $this the query object itself
-     */
-    public function from($tables)
-    {
-        $this->from = $tables;
-
-        return $this;
     }
 
     /**
@@ -160,6 +66,113 @@ class Query extends \yii\db\Query implements QueryInterface
     }
 
     /**
+     * Prepares for building query.
+     * This method is called by [[QueryBuilder]] when it starts to build SQL from a query object.
+     * You may override this method to do some final preparation work when converting a query into a SQL statement.
+     *
+     * @param QueryBuilder $builder
+     *
+     * @return $this a prepared query instance which will be used by [[QueryBuilder]] to build the SQL
+     */
+    public function prepare($builder)
+    {
+        return $this;
+    }
+
+    /**
+     * Returns the number of records.
+     *
+     * @param string $q the COUNT expression. Defaults to '*'.
+     * @param Connection $db the database connection used to execute the query.
+     * If this parameter is not given, the `db` application component will be used.
+     *
+     * @return int number of records.
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\base\NotSupportedException
+     */
+    public function count($q = '*', $db = null): int
+    {
+        if ($this->emulateExecution) {
+            return 0;
+        }
+
+        $result = $this->createCommand($db)->execute('head');
+
+        /* @var $result \yii\web\HeaderCollection */
+        return $result->get('x-pagination-total-count');
+    }
+
+    /**
+     * Creates a DB command that can be used to execute this query.
+     *
+     * @param Connection $db the connection used to generate the statement.
+     * If this parameter is not given, the `rest` application component will be used.
+     *
+     * @return Command the created DB command instance.
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\base\NotSupportedException
+     */
+    public function createCommand($db = null): Command
+    {
+        if ($db === null) {
+            $db = Yii::$app->get(Connection::getDriverName());
+        }
+
+        $commandConfig = $db->getQueryBuilder()->build($this);
+        $command = $db->createCommand($commandConfig);
+        $this->setCommandCache($command);
+
+        return $command;
+    }
+
+    /**
+     * {@inheritDoc}
+     * @param Command $command
+     * @return Command
+     */
+    protected function setCommandCache($command): Command
+    {
+        /** @var \yii\db\Command $command */
+        $command = parent::setCommandCache($command);
+        /** @var Command $command */
+        return $command;
+    }
+
+    /**
+     * {@inheritdoc}
+     * @throws \yii\base\InvalidConfigException
+     * @throws \yii\db\Exception
+     * @throws \yii\base\NotSupportedException
+     */
+    public function exists($db = null): bool
+    {
+        if ($this->emulateExecution) {
+            return false;
+        }
+
+        $result = $this->createCommand($db)->execute('head');
+
+        /* @var $result \yii\web\HeaderCollection */
+        return ($result->get('x-pagination-total-count', 0) > 0);
+    }
+
+    /**
+     * Sets the model to read from / write to
+     *
+     * @param string $tables
+     *
+     * @return $this the query object itself
+     */
+    public function from($tables): Query
+    {
+        $this->from = $tables;
+
+        return $this;
+    }
+
+    /**
      * Getter for modelClass
      * @return mixed
      */
@@ -175,18 +188,5 @@ class Query extends \yii\db\Query implements QueryInterface
     public function setModelClass($modelClass)
     {
         $this->_modelClass = $modelClass;
-    }
-
-    /**
-     * {@inheritDoc}
-     * @param Command $command
-     * @return Command
-     */
-    protected function setCommandCache($command)
-    {
-        /** @var \yii\db\Command $command */
-        $command = parent::setCommandCache($command);
-        /** @var Command $command */
-        return $command;
     }
 }

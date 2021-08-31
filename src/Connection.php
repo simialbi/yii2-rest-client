@@ -16,6 +16,7 @@ use yii\caching\CacheInterface;
 use yii\httpclient\Client;
 use yii\httpclient\Response;
 use yii\web\HeaderCollection;
+use simialbi\yii2\rest\Exception as RestException;
 
 /**
  * Class Connection
@@ -25,9 +26,7 @@ use yii\web\HeaderCollection;
  * 'components' => [
  *     'restclient' => [
  *         'class' => 'simialbi\yii2\rest\Connection',
- *         'config' => [
- *             'base_uri' => 'https://api.site.com/',
- *         ],
+ *         'baseUrl' => 'https://api.site.com/',
  *     ],
  * ],
  * ```
@@ -42,38 +41,52 @@ class Connection extends Component
      * @event Event an event that is triggered after a DB connection is established
      */
     const EVENT_AFTER_OPEN = 'afterOpen';
+
     /**
      * @var Client
      */
     protected static $_handler = null;
+
     /**
      * @var string base request URL.
      */
     public $baseUrl = '';
+
     /**
      * @var array request object configuration.
      */
     public $requestConfig = [];
+
     /**
      * @var array response config configuration.
      */
     public $responseConfig = [];
+
     /**
      * @var boolean Whether to use pluralisation or not
      */
     public $usePluralisation = true;
+
     /**
      * @var boolean Whether to use filter keyword or not
      */
     public $useFilterKeyword = true;
+
+    /**
+     * @var string The method to use for update operations. Defaults to [[put]].
+     */
+    public $updateMethod = 'put';
+
     /**
      * @var boolean Whether the connection should throw an exception if response is not 200 or not
      */
     public $enableExceptions = false;
+
     /**
      * @var boolean Whether we are in test mode or not (prevent execution)
      */
     public $isTestMode = false;
+
     /**
      * @var bool whether to enable query caching.
      * Note that in order to enable query caching, a valid cache component as specified
@@ -84,6 +97,7 @@ class Connection extends Component
      * @see noCache()
      */
     public $enableQueryCache = false;
+
     /**
      * @var int the default number of seconds that query results can remain valid in cache.
      * Defaults to 3600, meaning 3600 seconds, or one hour. Use 0 to indicate that the cached data will never expire.
@@ -92,6 +106,7 @@ class Connection extends Component
      * @see cache()
      */
     public $queryCacheDuration = 3600;
+
     /**
      * @var CacheInterface|string the cache object or the ID of the cache application component
      * that is used for query caching.
@@ -100,16 +115,15 @@ class Connection extends Component
     public $queryCache = 'cache';
 
     /**
+     * @var string|null the name of the property in the response where the items are wrapped. If not set, there is no
+     * wrapping property.
+     */
+    public $itemsProperty;
+
+    /**
      * @var string|Closure authorization config
      */
     protected $_auth;
-
-    /**
-     * @var Closure Callback to test if API response has error
-     * The function signature: `function ($response)`
-     * Must return `null`, if the response does not contain an error.
-     */
-    protected $_errorChecker;
 
     /**
      * @var Response
@@ -141,17 +155,17 @@ class Connection extends Component
      *
      * @param callable $callable a PHP callable that contains DB queries which will make use of query cache.
      * The signature of the callable is `function (Connection $db)`.
-     * @param int $duration the number of seconds that query results can remain valid in the cache. If this is
+     * @param int|null $duration the number of seconds that query results can remain valid in the cache. If this is
      * not set, the value of [[queryCacheDuration]] will be used instead.
      * Use 0 to indicate that the cached data will never expire.
-     * @param \yii\caching\Dependency $dependency the cache dependency associated with the cached query results.
+     * @param \yii\caching\Dependency|null $dependency the cache dependency associated with the cached query results.
      * @return mixed the return result of the callable
      * @throws \Exception|\Throwable if there is any exception during query
      * @see enableQueryCache
      * @see queryCache
      * @see noCache()
      */
-    public function cache(callable $callable, $duration = null, $dependency = null)
+    public function cache(callable $callable, int $duration = null, \yii\caching\Dependency $dependency = null)
     {
         $this->_queryCacheInfo[] = [$duration === null ? $this->queryCacheDuration : $duration, $dependency];
         try {
@@ -214,9 +228,10 @@ class Connection extends Component
      * @param int $duration the preferred caching duration. If null, it will be ignored.
      * @param \yii\caching\Dependency $dependency the preferred caching dependency. If null, it will be ignored.
      * @return array the current query cache information, or null if query cache is not enabled.
+     * @throws InvalidConfigException
      * @internal
      */
-    public function getQueryCacheInfo($duration, $dependency)
+    public function getQueryCacheInfo(int $duration = null, \yii\caching\Dependency $dependency = null)
     {
         if (!$this->enableQueryCache) {
             return null;
@@ -251,7 +266,7 @@ class Connection extends Component
      * by an end user.
      * @return string name of the DB driver
      */
-    public static function getDriverName()
+    public static function getDriverName(): string
     {
         return 'rest';
     }
@@ -311,12 +326,10 @@ class Connection extends Component
      *
      * @return Command the DB command
      */
-    public function createCommand($config = [])
+    public function createCommand(array $config = []): Command
     {
         $config['db'] = $this;
-        $command = new Command($config);
-
-        return $command;
+        return new Command($config);
     }
 
     /**
@@ -324,7 +337,7 @@ class Connection extends Component
      *
      * @return QueryBuilder
      */
-    public function getQueryBuilder()
+    public function getQueryBuilder(): QueryBuilder
     {
         return new QueryBuilder($this);
     }
@@ -332,13 +345,13 @@ class Connection extends Component
     /**
      * Performs GET HTTP request.
      *
-     * @param string $url URL
+     * @param string|array $url URL
      * @param array $data request body
      *
-     * @return mixed response
+     * @return array|false response
      * @throws Exception
      */
-    public function get($url, $data = [])
+    public function get($url, array $data = [])
     {
         array_unshift($data, $url);
         return $this->request('get', $data);
@@ -347,13 +360,13 @@ class Connection extends Component
     /**
      * Performs HEAD HTTP request.
      *
-     * @param string $url URL
+     * @param string|array $url URL
      * @param array $data request body
      *
      * @return HeaderCollection response
      * @throws Exception
      */
-    public function head($url, $data = [])
+    public function head($url, array $data = []): HeaderCollection
     {
         array_unshift($data, $url);
         $this->request('head', $data);
@@ -364,13 +377,13 @@ class Connection extends Component
     /**
      * Performs POST HTTP request.
      *
-     * @param string $url URL
+     * @param string|array $url URL
      * @param array $data request body
      *
-     * @return mixed response
+     * @return array|false response
      * @throws Exception
      */
-    public function post($url, $data = [])
+    public function post($url, array $data = [])
     {
         return $this->request('post', $url, $data);
     }
@@ -378,13 +391,13 @@ class Connection extends Component
     /**
      * Performs PUT HTTP request.
      *
-     * @param string $url URL
+     * @param string|array $url URL
      * @param array $data request body
      *
-     * @return mixed response
+     * @return array|false response
      * @throws Exception
      */
-    public function put($url, $data = [])
+    public function put($url, array $data = [])
     {
         return $this->request('put', $url, $data);
     }
@@ -392,13 +405,13 @@ class Connection extends Component
     /**
      * Performs DELETE HTTP request.
      *
-     * @param string $url URL
+     * @param string|array $url URL
      * @param array $data request body
      *
-     * @return mixed response
+     * @return array|false response
      * @throws Exception
      */
-    public function delete($url, $data = [])
+    public function delete($url, array $data = [])
     {
         return $this->request('delete', $url, $data);
     }
@@ -408,7 +421,7 @@ class Connection extends Component
      * Creates and setups handler if not set.
      * @return Client
      */
-    public function getHandler()
+    public function getHandler(): Client
     {
         if (static::$_handler === null) {
             $requestConfig = $this->requestConfig;
@@ -434,10 +447,10 @@ class Connection extends Component
      * @param string|array $url the URL for request, not including proto and site
      * @param array $data the request data
      *
-     * @return mixed|false
+     * @return array|false
      * @throws Exception
      */
-    protected function request($method, $url, $data = [])
+    protected function request(string $method, $url, array $data = [])
     {
         if (is_array($url)) {
             $path = array_shift($url);
@@ -474,13 +487,13 @@ class Connection extends Component
         try {
             $this->_response = $this->isTestMode ? [] : $request->send();
         } catch (\yii\httpclient\Exception $e) {
-            throw new Exception('Request failed', [], 1, $e);
+            throw new RestException('Request failed', [], 1, $e);
         }
         Yii::endProfile($profile, __METHOD__);
 
         if (!$this->isTestMode && !$this->_response->isOk) {
             if ($this->enableExceptions) {
-                throw new Exception($this->_response->content, $this->_response->headers->toArray());
+                throw new RestException($this->_response->content, $this->_response->headers->toArray());
             }
             return false;
         }

@@ -26,7 +26,7 @@ class HashConditionBuilder extends \yii\db\conditions\HashConditionBuilder
      *
      * @return array
      */
-    public function build(ExpressionInterface $expression, array &$params = [])
+    public function build(ExpressionInterface $expression, array &$params = []): array
     {
         /* @var $expression \yii\db\conditions\HashCondition */
 

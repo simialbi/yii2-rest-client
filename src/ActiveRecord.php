@@ -29,10 +29,10 @@ class ActiveRecord extends BaseActiveRecord
      * @return array
      * @throws \ReflectionException
      */
-    public function attributes()
+    public function attributes(): array
     {
         if (empty($this->_attributeFields)) {
-            $regex = '#^@property(?:-(read|write))?(?:(?:\s+)([^\s]+))?(?:\s+)\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
+            $regex = '#^@property(?:-(read|write))?(?:\s+([^\s]+))?\s+\$([a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*)#';
             $typeRegex = '#^(bool(ean)?|int(eger)?|float|double|string|array)$#';
             $reflection = new \ReflectionClass($this);
             $docLines = preg_split('~\R~u', $reflection->getDocComment());
@@ -53,10 +53,11 @@ class ActiveRecord extends BaseActiveRecord
 
     /**
      * {@inheritdoc}
+     * @throws InvalidConfigException
      */
-    public static function primaryKey()
+    public static function primaryKey(): array
     {
-        new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
+        throw new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
     }
 
     /**
@@ -65,7 +66,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return ActiveQuery
      * @throws InvalidConfigException
      */
-    public static function find()
+    public static function find(): ActiveQuery
     {
         /* @var $query ActiveQuery */
         $query = Yii::createObject(ActiveQuery::class, [get_called_class()]);
@@ -74,15 +75,15 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
+     * {@inheritDoc}
+     *
      * @return null|Connection
      * @throws InvalidConfigException
      */
     public static function getDb()
     {
-        $connection = Yii::$app->get(Connection::getDriverName());
-
         /* @var $connection Connection */
-        return $connection;
+        return Yii::$app->get(Connection::getDriverName());
     }
 
     /**
@@ -96,19 +97,18 @@ class ActiveRecord extends BaseActiveRecord
      * @return string the url path
      * @throws InvalidConfigException
      */
-    public static function modelName()
+    public static function modelName(): string
     {
         $path = Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
         return static::getDb()->usePluralisation ? Inflector::pluralize($path) : $path;
     }
-
 
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
      * @throws Exception
      */
-    public function insert($runValidation = true, $attributes = null)
+    public function insert($runValidation = true, $attributes = null): bool
     {
         if ($runValidation && !$this->validate($attributes)) {
             Yii::info('Model not inserted due to validation error.', __METHOD__);
@@ -122,14 +122,14 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * Inserts an ActiveRecord.
      *
-     * @param array $attributes list of attributes that need to be saved. Defaults to `null`,
+     * @param array|null $attributes list of attributes that need to be saved. Defaults to `null`,
      * meaning all attributes that are loaded from DB will be saved.
      *
      * @return boolean whether the record is inserted successfully.
      * @throws InvalidConfigException
      * @throws Exception
      */
-    protected function insertInternal($attributes)
+    protected function insertInternal($attributes): bool
     {
         if (!$this->beforeSave(true)) {
             return false;
@@ -140,10 +140,10 @@ class ActiveRecord extends BaseActiveRecord
         }
         foreach ($data as $name => $value) {
             $this->setAttribute($name, $value);
+            $this->setOldAttribute($name, $value);
         }
 
         $changedAttributes = array_fill_keys(array_keys($values), null);
-        $this->setOldAttributes($values);
         $this->afterSave(true, $changedAttributes);
 
         return true;
@@ -152,7 +152,6 @@ class ActiveRecord extends BaseActiveRecord
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
-     * @throws \yii\httpclient\Exception
      */
     public function update($runValidation = true, $attributeNames = null)
     {
@@ -195,7 +194,6 @@ class ActiveRecord extends BaseActiveRecord
         return $rows;
     }
 
-
     /**
      * {@inheritdoc}
      * @throws InvalidConfigException
@@ -221,5 +219,23 @@ class ActiveRecord extends BaseActiveRecord
     public function unlinkAll($name, $delete = false)
     {
         throw new NotSupportedException('unlinkAll() is not supported by RestClient, use unlink() instead.');
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function hasOne($class, $link)
+    {
+        return parent::hasOne($class, $link);
+    }
+
+    /**
+     * {@inheritDoc}
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function hasMany($class, $link)
+    {
+        return parent::hasMany($class, $link);
     }
 }

@@ -70,7 +70,7 @@ class ActiveFixture extends BaseActiveFixture
      * @throws InvalidConfigException
      * @throws \ReflectionException
      */
-    protected function getData()
+    protected function getData(): array
     {
         if ($this->dataFile === null) {
             if ($this->dataDirectory !== null) {

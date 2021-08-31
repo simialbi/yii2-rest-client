@@ -56,23 +56,24 @@ class Command extends Component
 
     /**
      * Enables query cache for this command.
-     * @param int $duration the number of seconds that query result of this command can remain valid in the cache.
+     * @param int|null $duration the number of seconds that query result of this command can remain valid in the cache.
      * If this is not set, the value of [[Connection::queryCacheDuration]] will be used instead.
      * Use 0 to indicate that the cached data will never expire.
-     * @param \yii\caching\Dependency $dependency the cache dependency associated with the cached query result.
+     * @param \yii\caching\Dependency|null $dependency the cache dependency associated with the cached query result.
      * @return $this the command object itself
      */
-    public function cache($duration = null, $dependency = null)
+    public function cache(int $duration = null, \yii\caching\Dependency $dependency = null): Command
     {
         $this->queryCacheDuration = $duration === null ? $this->db->queryCacheDuration : $duration;
         $this->queryCacheDependency = $dependency;
         return $this;
     }
+
     /**
      * Disables query cache for this command.
      * @return $this the command object itself
      */
-    public function noCache()
+    public function noCache(): Command
     {
         $this->queryCacheDuration = -1;
         return $this;
@@ -84,7 +85,7 @@ class Command extends Component
      * It is likely that this method returns an invalid URL due to improper replacement of parameter placeholders.
      * @return string the raw URL with parameter values inserted into the corresponding placeholders.
      */
-    public function getRawUrl()
+    public function getRawUrl(): string
     {
         $rawUrl = $this->db->handler->get($this->pathInfo, $this->queryParams)->fullUrl;
 
@@ -93,12 +94,12 @@ class Command extends Component
 
     /**
      * Executes the SQL statement and returns ALL rows at once.
-     * @param int $fetchMode for compatibility with [[\yii\db\Command]]
+     * @param int|null $fetchMode for compatibility with [[\yii\db\Command]]
      * @return array all rows of the query result. Each array element is an array representing a row of data.
      * An empty array is returned if the query results in nothing.
      * @throws \yii\base\InvalidConfigException
      */
-    public function queryAll($fetchMode = null)
+    public function queryAll(int $fetchMode = null): array
     {
         return $this->queryInternal();
     }
@@ -106,16 +107,17 @@ class Command extends Component
     /**
      * Executes the SQL statement and returns the first row of the result.
      * This method is best used when only the first row of result is needed for a query.
-     * @param int $fetchMode for compatibility with [[\yii\db\Command]]
+     * @param int|null $fetchMode for compatibility with [[\yii\db\Command]]
      * @return array|false the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
+     * @throws \yii\base\InvalidConfigException
      */
-    public function queryOne($fetchMode = null)
+    public function queryOne(int $fetchMode = null)
     {
-        /* @var $class ActiveRecord */
         $class = $this->modelClass;
 
         if (!empty($class) && class_exists($class)) {
+            /* @var $class ActiveRecord */
             $pks = $class::primaryKey();
 
             if (count($pks) === 1 && isset($this->queryParams['filter'])) {
@@ -137,7 +139,7 @@ class Command extends Component
      *
      * @return mixed
      */
-    public function execute($method = 'get')
+    public function execute(string $method = 'get')
     {
         return $this->queryInternal($method);
     }
@@ -151,7 +153,7 @@ class Command extends Component
      * @return mixed
      * @throws Exception
      */
-    public function insert($model, $columns)
+    public function insert(string $model, array $columns)
     {
         $this->pathInfo = $model;
 
@@ -163,31 +165,31 @@ class Command extends Component
      *
      * @param string $model
      * @param array $data
-     * @param string $id
+     * @param string|null $id
      *
      * @return mixed
-     * @throws Exception
      */
-    public function update($model, $data = [], $id = null)
+    public function update(string $model, array $data = [], string $id = null)
     {
+        $method = $this->db->updateMethod;
         $this->pathInfo = $model;
         if ($id) {
             $this->pathInfo .= '/' . $id;
         }
 
-        return $this->db->put($this->pathInfo, $data);
+        return $this->db->$method($this->pathInfo, $data);
     }
 
     /**
      * Deletes a record
      *
      * @param string $model
-     * @param string $id
+     * @param string|null $id
      *
      * @return mixed
      * @throws Exception
      */
-    public function delete($model, $id = null)
+    public function delete(string $model, string $id = null)
     {
         $this->pathInfo = $model;
         if ($id) {
@@ -204,7 +206,7 @@ class Command extends Component
      *
      * @return mixed
      */
-    protected function queryInternal($method = 'get')
+    protected function queryInternal(string $method = 'get')
     {
         if ($this->db->usePluralisation && strpos($this->pathInfo, '/') === false) {
             $this->pathInfo = Inflector::pluralize($this->pathInfo);
@@ -225,7 +227,16 @@ class Command extends Component
             }
         }
 
-        return $this->db->$method($this->pathInfo, $this->queryParams);
+        $result = $this->db->$method($this->pathInfo, $this->queryParams);
+        if ($this->db->itemsProperty) {
+            $result = ArrayHelper::getValue($result, $this->db->itemsProperty, []);
+        }
+        if (isset($cache, $cacheKey, $info)) {
+            $cache->set($cacheKey, [$result], $info[1], $info[2]);
+            Yii::debug('Saved query result in cache', 'simialbi\yii2\rest\Command::query');
+        }
+
+        return $result;
     }
 
     /**
@@ -235,7 +246,7 @@ class Command extends Component
      * @return array the cache key
      * @since 2.0.16
      */
-    protected function getCacheKey($method)
+    protected function getCacheKey(string $method): array
     {
         return [
             __CLASS__,

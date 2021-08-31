@@ -29,10 +29,10 @@ class RestDataProvider extends ActiveDataProvider
      * @throws \yii\db\Exception
      * @throws \yii\base\NotSupportedException
      */
-    protected function prepareTotalCount()
+    protected function prepareTotalCount(): int
     {
         if (!$this->query instanceof QueryInterface) {
-            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. yii\db\Query or its subclasses.');
+            throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. simialbi\yii2\rest\Query or its subclasses.');
         }
 
         return (int)$this->query->count();
