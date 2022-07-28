@@ -231,7 +231,7 @@ class Connection extends Component
      * @throws InvalidConfigException
      * @internal
      */
-    public function getQueryCacheInfo(int $duration = null, \yii\caching\Dependency $dependency = null)
+    public function getQueryCacheInfo(int $duration = null, \yii\caching\Dependency $dependency = null): ?array
     {
         if (!$this->enableQueryCache) {
             return null;

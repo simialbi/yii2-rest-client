@@ -10,6 +10,7 @@ namespace simialbi\yii2\rest;
 
 use Yii;
 use yii\base\Component;
+use yii\base\InvalidConfigException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
 
@@ -186,7 +187,7 @@ class Command extends Component
      * @param string $model
      * @param string|null $id
      *
-     * @return mixed
+     * @return array|false
      * @throws Exception
      */
     public function delete(string $model, string $id = null)

@@ -6,7 +6,6 @@
 
 namespace simialbi\yii2\rest\conditions;
 
-
 use yii\db\conditions\NotCondition;
 use yii\db\ExpressionInterface;
 

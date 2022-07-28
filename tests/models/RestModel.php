@@ -29,7 +29,7 @@ class RestModel extends ActiveRecord
     /**
      * {@inheritDoc}
      */
-    public static function primaryKey()
+    public static function primaryKey(): array
     {
         return ['id'];
     }
@@ -38,7 +38,7 @@ class RestModel extends ActiveRecord
      * Get related rests
      * @return \yii\db\ActiveQueryInterface
      */
-    public function getRelatedRests()
+    public function getRelatedRests(): \yii\db\ActiveQueryInterface
     {
         return $this->hasMany(RelatedRestModel::class, ['rest_model_id' => 'id']);
     }

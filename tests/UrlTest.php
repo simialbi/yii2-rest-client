@@ -12,7 +12,7 @@ use yiiunit\extensions\rest\models\RestModel;
 
 class UrlTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

@@ -17,7 +17,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
     /**
      * {@inheritdoc}
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         $this->destroyApplication();
@@ -28,7 +28,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      * @param array $config
      * @param string $appClass
      */
-    protected function mockWebApplication($config = [], $appClass = '\yii\web\Application')
+    protected function mockWebApplication(array $config = [], string $appClass = '\yii\web\Application')
     {
         new $appClass(ArrayHelper::merge([
             'id' => 'testapp',
@@ -75,7 +75,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
      * Parse log from index and returns data
      * @return array
      */
-    protected function parseLogs()
+    protected function parseLogs(): array
     {
         $method = '';
         $url = '';

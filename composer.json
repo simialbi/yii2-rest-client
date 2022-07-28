@@ -1,58 +1,63 @@
 {
-  "name": "simialbi/yii2-rest-client",
-  "type": "yii2-extension",
-  "description": "REST client (AR-like model) for Yii Framework 2.0 (via yii2-http-client, extends ApexWire/yii2-restclient)",
-  "keywords": [
-    "yii2",
-    "rest",
-    "client",
-    "model",
-    "active record"
-  ],
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "ApexWire",
-      "email": "apexwire@gmail.com"
+    "name": "simialbi/yii2-rest-client",
+    "type": "yii2-extension",
+    "description": "REST client (AR-like model) for Yii Framework 2.0 (via yii2-http-client, extends ApexWire/yii2-restclient)",
+    "keywords": [
+        "yii2",
+        "rest",
+        "client",
+        "model",
+        "active record"
+    ],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "ApexWire",
+            "email": "apexwire@gmail.com"
+        },
+        {
+            "name": "simialbi",
+            "email": "simi.albi@outlook.com"
+        }
+    ],
+    "support": {
+        "source": "https://github.com/simialbi/yii2-rest-client",
+        "issues": "https://github.com/simialbi/yii2-rest-client/issues"
     },
-    {
-      "name": "simialbi",
-      "email": "simi.albi@outlook.com"
+    "minimum-stability": "beta",
+    "require": {
+        "php": ">=7.3",
+        "yiisoft/yii2": "^2.0.14",
+        "yiisoft/yii2-httpclient": "^2.0.0"
+    },
+    "require-dev": {
+        "yiisoft/yii2-coding-standards": "~2.0",
+        "phpunit/phpunit": "^9.5.21"
+    },
+    "autoload": {
+        "psr-4": {
+            "simialbi\\yii2\\rest\\": "src"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "yiiunit\\extensions\\rest\\": "tests"
+        }
+    },
+    "repositories": [
+        {
+            "type": "composer",
+            "url": "https://asset-packagist.org"
+        }
+    ],
+    "extra": {
+        "branch-alias": {
+            "dev-master": "2.0.x-dev"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "yiisoft/yii2-composer": true
+        }
     }
-  ],
-  "support": {
-    "source": "https://github.com/simialbi/yii2-rest-client",
-    "issues": "https://github.com/simialbi/yii2-rest-client/issues"
-  },
-  "minimum-stability": "beta",
-  "require": {
-    "php": ">=7.0",
-    "yiisoft/yii2": "^2.0.14",
-    "yiisoft/yii2-httpclient": "^2.0.0"
-  },
-  "require-dev": {
-    "yiisoft/yii2-coding-standards": "~2.0",
-    "phpunit/phpunit": "^5.0.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "simialbi\\yii2\\rest\\": "src"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "yiiunit\\extensions\\rest\\": "tests"
-    }
-  },
-  "repositories": [
-    {
-      "type": "composer",
-      "url": "https://asset-packagist.org"
-    }
-  ],
-  "extra": {
-    "branch-alias": {
-      "dev-master": "2.0.x-dev"
-    }
-  }
 }

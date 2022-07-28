@@ -36,7 +36,7 @@ class ArrayTarget extends Target
      * Getter for cache variable
      * @return array
      */
-    public function getCache()
+    public function getCache(): array
     {
         return $this->_cache;
     }

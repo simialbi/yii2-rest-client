@@ -27,7 +27,7 @@ class RelatedRestModel extends ActiveRecord
     /**
      * {@inheritDoc}
      */
-    public static function primaryKey()
+    public static function primaryKey(): array
     {
         return ['id'];
     }

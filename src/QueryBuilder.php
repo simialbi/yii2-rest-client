@@ -150,9 +150,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      */
     public function buildWhere($condition, &$params): array
     {
-        $where = $this->buildCondition($condition, $params);
-
-        return $where;
+        return $this->buildCondition($condition, $params);
     }
 
     /**
@@ -162,7 +160,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      */
     public function buildCondition($condition, &$params): array
     {
-        if ($condition instanceof Expression || empty($condition) || !is_array($condition)) {
+        if (empty($condition) || !is_array($condition)) {
             return [];
         }
 
@@ -246,7 +244,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
     /**
      * {@inheritdoc}
      */
-    public function bindParam($value, &$params)
+    public function bindParam($value, &$params): ?string
     {
         return $value;
     }

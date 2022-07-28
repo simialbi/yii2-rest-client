@@ -13,7 +13,7 @@ use yiiunit\extensions\rest\models\RestModel;
 
 class UrlWithoutPluralisationTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
 

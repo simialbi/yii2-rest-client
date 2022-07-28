@@ -80,7 +80,7 @@ class ActiveRecord extends BaseActiveRecord
      * @return null|Connection
      * @throws InvalidConfigException
      */
-    public static function getDb()
+    public static function getDb(): ?Connection
     {
         /* @var $connection Connection */
         return Yii::$app->get(Connection::getDriverName());
@@ -129,7 +129,7 @@ class ActiveRecord extends BaseActiveRecord
      * @throws InvalidConfigException
      * @throws Exception
      */
-    protected function insertInternal($attributes): bool
+    protected function insertInternal(?array $attributes): bool
     {
         if (!$this->beforeSave(true)) {
             return false;

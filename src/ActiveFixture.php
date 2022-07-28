@@ -105,7 +105,7 @@ class ActiveFixture extends BaseActiveFixture
         $modelClass = $this->modelClass;
         $keys = [];
         foreach ($modelClass::primaryKey() as $key) {
-            $keys[$key] = isset($row[$key]) ? $row[$key] : null;
+            $keys[$key] = $row[$key] ?? null;
         }
 
         /* @var $model ActiveRecord */

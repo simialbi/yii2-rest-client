@@ -43,7 +43,7 @@ class Query extends \yii\db\Query implements QueryInterface
     /**
      * {@inheritDoc}
      */
-    public static function create($from)
+    public static function create($from): self
     {
         $modelClass = ($from->hasProperty('modelClass')) ? $from->modelClass : null;
 
@@ -74,7 +74,7 @@ class Query extends \yii\db\Query implements QueryInterface
      *
      * @return $this a prepared query instance which will be used by [[QueryBuilder]] to build the SQL
      */
-    public function prepare($builder)
+    public function prepare($builder): self
     {
         return $this;
     }

@@ -7,7 +7,6 @@
 
 namespace simialbi\yii2\rest\conditions;
 
-
 use yii\data\DataFilter;
 use yii\helpers\ArrayHelper;
 

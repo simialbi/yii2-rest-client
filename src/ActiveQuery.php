@@ -60,7 +60,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * {@inheritdoc}
      * @throws InvalidConfigException
      */
-    public function prepare($builder)
+    public function prepare($builder): Query
     {
         if (!empty($this->joinWith)) {
             $this->buildJoinWith();
@@ -179,7 +179,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * {@inheritdoc}
      */
-    public function all($db = null)
+    public function all($db = null): array
     {
         return parent::all($db);
     }

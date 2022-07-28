@@ -6,7 +6,6 @@
 
 namespace simialbi\yii2\rest\conditions;
 
-
 use yii\db\conditions\ConjunctionCondition;
 use yii\db\ExpressionInterface;
 
