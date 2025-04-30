@@ -63,7 +63,7 @@ class Command extends Component
      * @param \yii\caching\Dependency|null $dependency the cache dependency associated with the cached query result.
      * @return $this the command object itself
      */
-    public function cache(int $duration = null, \yii\caching\Dependency $dependency = null): Command
+    public function cache(?int $duration = null, ?\yii\caching\Dependency $dependency = null): Command
     {
         $this->queryCacheDuration = $duration === null ? $this->db->queryCacheDuration : $duration;
         $this->queryCacheDependency = $dependency;
@@ -100,7 +100,7 @@ class Command extends Component
      * An empty array is returned if the query results in nothing.
      * @throws \yii\base\InvalidConfigException
      */
-    public function queryAll(int $fetchMode = null): array
+    public function queryAll(?int $fetchMode = null): array
     {
         return $this->queryInternal();
     }
@@ -113,7 +113,7 @@ class Command extends Component
      * results in nothing.
      * @throws \yii\base\InvalidConfigException
      */
-    public function queryOne(int $fetchMode = null)
+    public function queryOne(?int $fetchMode = null)
     {
         $class = $this->modelClass;
 
@@ -170,7 +170,7 @@ class Command extends Component
      *
      * @return mixed
      */
-    public function update(string $model, array $data = [], string $id = null)
+    public function update(string $model, array $data = [], ?string $id = null)
     {
         $method = $this->db->updateMethod;
         $this->pathInfo = $model;
@@ -190,7 +190,7 @@ class Command extends Component
      * @return array|false
      * @throws Exception
      */
-    public function delete(string $model, string $id = null)
+    public function delete(string $model, ?string $id = null)
     {
         $this->pathInfo = $model;
         if ($id) {

@@ -165,7 +165,7 @@ class Connection extends Component
      * @see queryCache
      * @see noCache()
      */
-    public function cache(callable $callable, int $duration = null, \yii\caching\Dependency $dependency = null)
+    public function cache(callable $callable, ?int $duration = null, ?\yii\caching\Dependency $dependency = null)
     {
         $this->_queryCacheInfo[] = [$duration === null ? $this->queryCacheDuration : $duration, $dependency];
         try {
@@ -231,7 +231,7 @@ class Connection extends Component
      * @throws InvalidConfigException
      * @internal
      */
-    public function getQueryCacheInfo(int $duration = null, \yii\caching\Dependency $dependency = null): ?array
+    public function getQueryCacheInfo(?int $duration = null, ?\yii\caching\Dependency $dependency = null): ?array
     {
         if (!$this->enableQueryCache) {
             return null;
