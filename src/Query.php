@@ -98,7 +98,7 @@ class Query extends \yii\db\Query implements QueryInterface
         $result = $this->createCommand($db)->execute('head');
 
         /** @var \yii\web\HeaderCollection $result */
-        return (int)$result->get('x-pagination-total-count');
+        return (int) $result->get('x-pagination-total-count');
     }
 
     /**
