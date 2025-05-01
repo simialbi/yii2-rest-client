@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -10,7 +12,6 @@ namespace yiiunit\extensions\rest\models;
 use simialbi\yii2\rest\ActiveRecord;
 
 /**
- * Class RestModel
  * @package yiiunit\extensions\rest\models
  *
  * @property integer $id
@@ -26,9 +27,6 @@ use simialbi\yii2\rest\ActiveRecord;
  */
 class RestModel extends ActiveRecord
 {
-    /**
-     * {@inheritDoc}
-     */
     public static function primaryKey(): array
     {
         return ['id'];
@@ -36,11 +34,12 @@ class RestModel extends ActiveRecord
 
     /**
      * Get related rests
-     * @return \yii\db\ActiveQueryInterface
      */
     public function getRelatedRests(): \yii\db\ActiveQueryInterface
     {
-        return $this->hasMany(RelatedRestModel::class, ['rest_model_id' => 'id']);
+        return $this->hasMany(RelatedRestModel::class, [
+            'rest_model_id' => 'id',
+        ]);
     }
 
     /**
@@ -49,6 +48,8 @@ class RestModel extends ActiveRecord
      */
     public function getRelatedRest()
     {
-        return $this->hasOne(RelatedRestModel::class, ['rest_model_id' => 'id']);
+        return $this->hasOne(RelatedRestModel::class, [
+            'rest_model_id' => 'id',
+        ]);
     }
 }

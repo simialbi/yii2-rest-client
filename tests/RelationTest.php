@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -26,14 +28,14 @@ class RelationTest extends TestCase
         $fixture = new RestModelFixture();
         $fixture->load();
 
-        /* @var $model RestModel */
+        /** @var RestModel $model */
         $model = $fixture->getModel(0);
 
         $this->assertInstanceOf(RestModel::class, $model);
 
         Yii::$app->log->logger->flush();
 
-//        var_dump($model);
+        //        var_dump($model);
         $model->getRelatedRests()->all();
 
         $logEntry = $this->parseLogs();
@@ -47,7 +49,7 @@ class RelationTest extends TestCase
         $fixture = new RestModelFixture();
         $fixture->load();
 
-        /* @var $model RestModel */
+        /** @var RestModel $model */
         $model = $fixture->getModel(0);
 
         $this->assertInstanceOf(RestModel::class, $model);

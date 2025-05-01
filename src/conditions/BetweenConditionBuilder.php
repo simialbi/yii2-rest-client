@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -10,22 +12,15 @@ use yii\db\conditions\BetweenCondition;
 use yii\db\ExpressionInterface;
 
 /**
- * {@inheritdoc}
- *
  * @property \simialbi\yii2\rest\QueryBuilder $queryBuilder
  */
 class BetweenConditionBuilder extends \yii\db\conditions\BetweenConditionBuilder
 {
     use ConditionBuilderTrait;
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return array
-     */
     public function build(ExpressionInterface $expression, array &$params = []): array
     {
-        /* @var $expression BetweenCondition */
+        /** @var BetweenCondition $expression */
         $operator = $expression->getOperator();
         $column = $expression->getColumn();
 
@@ -36,14 +31,14 @@ class BetweenConditionBuilder extends \yii\db\conditions\BetweenConditionBuilder
             return [
                 $column => [
                     'gt' => $phName1,
-                    'lt' => $phName2
-                ]
+                    'lt' => $phName2,
+                ],
             ];
         } else {
             return $this->queryBuilder->buildCondition([
                 'or',
                 ['<', $column, $expression->getIntervalStart()],
-                ['>', $column, $expression->getIntervalEnd()]
+                ['>', $column, $expression->getIntervalEnd()],
             ], $params);
         }
     }

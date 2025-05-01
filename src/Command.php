@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: simialbi
@@ -57,10 +59,12 @@ class Command extends Component
 
     /**
      * Enables query cache for this command.
+     *
      * @param int|null $duration the number of seconds that query result of this command can remain valid in the cache.
      * If this is not set, the value of [[Connection::queryCacheDuration]] will be used instead.
      * Use 0 to indicate that the cached data will never expire.
      * @param \yii\caching\Dependency|null $dependency the cache dependency associated with the cached query result.
+     *
      * @return $this the command object itself
      */
     public function cache(?int $duration = null, ?\yii\caching\Dependency $dependency = null): Command
@@ -88,17 +92,17 @@ class Command extends Component
      */
     public function getRawUrl(): string
     {
-        $rawUrl = $this->db->handler->get($this->pathInfo, $this->queryParams)->fullUrl;
-
-        return $rawUrl;
+        return $this->db->handler->get($this->pathInfo, $this->queryParams)->fullUrl;
     }
 
     /**
      * Executes the SQL statement and returns ALL rows at once.
+     *
      * @param int|null $fetchMode for compatibility with [[\yii\db\Command]]
+     *
      * @return array all rows of the query result. Each array element is an array representing a row of data.
      * An empty array is returned if the query results in nothing.
-     * @throws \yii\base\InvalidConfigException
+     * @throws InvalidConfigException
      */
     public function queryAll(?int $fetchMode = null): array
     {
@@ -108,7 +112,9 @@ class Command extends Component
     /**
      * Executes the SQL statement and returns the first row of the result.
      * This method is best used when only the first row of result is needed for a query.
+     *
      * @param int|null $fetchMode for compatibility with [[\yii\db\Command]]
+     *
      * @return array|false the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      * @throws \yii\base\InvalidConfigException
@@ -118,7 +124,7 @@ class Command extends Component
         $class = $this->modelClass;
 
         if (!empty($class) && class_exists($class)) {
-            /* @var $class ActiveRecord */
+            /** @var ActiveRecord $class */
             $pks = $class::primaryKey();
 
             if (count($pks) === 1 && isset($this->queryParams['filter'])) {
@@ -136,9 +142,8 @@ class Command extends Component
     /**
      * Make request and check for error.
      *
-     * @param string $method
-     *
      * @return mixed
+     * @throws InvalidConfigException
      */
     public function execute(string $method = 'get')
     {
@@ -148,10 +153,7 @@ class Command extends Component
     /**
      * Creates a new record
      *
-     * @param string $model
-     * @param array $columns
-     *
-     * @return mixed
+     * @return array|false
      * @throws Exception
      */
     public function insert(string $model, array $columns)
@@ -163,10 +165,6 @@ class Command extends Component
 
     /**
      * Updates an existing record
-     *
-     * @param string $model
-     * @param array $data
-     * @param string|null $id
      *
      * @return mixed
      */
@@ -184,14 +182,12 @@ class Command extends Component
     /**
      * Deletes a record
      *
-     * @param string $model
-     * @param string|null $id
-     *
      * @return array|false
      * @throws Exception
      */
-    public function delete(string $model, ?string $id = null)
+    public function delete(string $model, $id = null)
     {
+        $id = (string) $id;
         $this->pathInfo = $model;
         if ($id) {
             $this->pathInfo .= '/' . $id;
@@ -203,9 +199,8 @@ class Command extends Component
     /**
      * Performs the actual statement
      *
-     * @param string $method
-     *
      * @return mixed
+     * @throws InvalidConfigException
      */
     protected function queryInternal(string $method = 'get')
     {
@@ -218,7 +213,7 @@ class Command extends Component
         }
         $info = $this->db->getQueryCacheInfo($this->queryCacheDuration, $this->queryCacheDependency);
         if (is_array($info)) {
-            /* @var $cache \yii\caching\CacheInterface */
+            /** @var \yii\caching\CacheInterface $cache */
             $cache = $info[0];
             $cacheKey = $this->getCacheKey($method);
             $result = $cache->get($cacheKey);
@@ -243,7 +238,6 @@ class Command extends Component
     /**
      * Returns the cache key for the query.
      *
-     * @param string $method
      * @return array the cache key
      * @since 2.0.16
      */
@@ -253,7 +247,7 @@ class Command extends Component
             __CLASS__,
             $method,
             $this->pathInfo,
-            $this->queryParams
+            $this->queryParams,
         ];
     }
 }

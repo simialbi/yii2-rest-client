@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: simialbi
@@ -9,18 +11,17 @@
 namespace simialbi\yii2\rest;
 
 use Closure;
+use simialbi\yii2\rest\Exception as RestException;
 use Yii;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\caching\CacheInterface;
+use yii\caching\Dependency;
 use yii\httpclient\Client;
 use yii\httpclient\Response;
 use yii\web\HeaderCollection;
-use simialbi\yii2\rest\Exception as RestException;
 
 /**
- * Class Connection
- *
  * Example configuration:
  * ```php
  * 'components' => [
@@ -40,7 +41,7 @@ class Connection extends Component
     /**
      * @event Event an event that is triggered after a DB connection is established
      */
-    const EVENT_AFTER_OPEN = 'afterOpen';
+    public const EVENT_AFTER_OPEN = 'afterOpen';
 
     /**
      * @var Client
@@ -136,6 +137,16 @@ class Connection extends Component
     private $_queryCacheInfo = [];
 
     /**
+     * Returns the name of the DB driver. Based on the the current [[dsn]], in case it was not set explicitly
+     * by an end user.
+     * @return string name of the DB driver
+     */
+    public static function getDriverName(): string
+    {
+        return 'rest';
+    }
+
+    /**
      * Uses query cache for the queries performed with the callable.
      *
      * When query caching is enabled ([[enableQueryCache]] is true and [[queryCache]] refers to a valid cache),
@@ -159,6 +170,7 @@ class Connection extends Component
      * not set, the value of [[queryCacheDuration]] will be used instead.
      * Use 0 to indicate that the cached data will never expire.
      * @param \yii\caching\Dependency|null $dependency the cache dependency associated with the cached query results.
+     *
      * @return mixed the return result of the callable
      * @throws \Exception|\Throwable if there is any exception during query
      * @see enableQueryCache
@@ -172,10 +184,7 @@ class Connection extends Component
             $result = call_user_func($callable, $this);
             array_pop($this->_queryCacheInfo);
             return $result;
-        } catch (\Exception $e) {
-            array_pop($this->_queryCacheInfo);
-            throw $e;
-        } catch (\Throwable $e) {
+        } catch (\Exception|\Throwable $e) {
             array_pop($this->_queryCacheInfo);
             throw $e;
         }
@@ -200,6 +209,7 @@ class Connection extends Component
      *
      * @param callable $callable a PHP callable that contains DB queries which should not use query cache.
      * The signature of the callable is `function (Connection $db)`.
+     *
      * @return mixed the return result of the callable
      * @throws \Exception|\Throwable if there is any exception during query
      * @see enableQueryCache
@@ -213,10 +223,7 @@ class Connection extends Component
             $result = call_user_func($callable, $this);
             array_pop($this->_queryCacheInfo);
             return $result;
-        } catch (\Exception $e) {
-            array_pop($this->_queryCacheInfo);
-            throw $e;
-        } catch (\Throwable $e) {
+        } catch (\Exception|\Throwable $e) {
             array_pop($this->_queryCacheInfo);
             throw $e;
         }
@@ -225,8 +232,10 @@ class Connection extends Component
     /**
      * Returns the current query cache information.
      * This method is used internally by [[Command]].
-     * @param int $duration the preferred caching duration. If null, it will be ignored.
-     * @param \yii\caching\Dependency $dependency the preferred caching dependency. If null, it will be ignored.
+     *
+     * @param int|null $duration the preferred caching duration. If null, it will be ignored.
+     * @param Dependency|null $dependency the preferred caching dependency. If null, it will be ignored.
+     *
      * @return array the current query cache information, or null if query cache is not enabled.
      * @throws InvalidConfigException
      * @internal
@@ -262,17 +271,6 @@ class Connection extends Component
     }
 
     /**
-     * Returns the name of the DB driver. Based on the the current [[dsn]], in case it was not set explicitly
-     * by an end user.
-     * @return string name of the DB driver
-     */
-    public static function getDriverName(): string
-    {
-        return 'rest';
-    }
-
-    /**
-     * {@inheritdoc}
      * @throws InvalidConfigException
      */
     public function init()
@@ -284,30 +282,6 @@ class Connection extends Component
         $this->baseUrl = rtrim($this->baseUrl, '/');
 
         parent::init();
-    }
-
-    /**
-     * Returns the authorization config.
-     *
-     * @return string authorization config
-     */
-    protected function getAuth()
-    {
-        if ($this->_auth instanceof Closure) {
-            $this->_auth = call_user_func($this->_auth, $this);
-        }
-
-        return $this->_auth;
-    }
-
-    /**
-     * Changes the current authorization config.
-     *
-     * @param string|Closure $auth authorization config
-     */
-    public function setAuth($auth)
-    {
-        $this->_auth = $auth;
     }
 
     /**
@@ -334,8 +308,6 @@ class Connection extends Component
 
     /**
      * Creates new query builder instance.
-     *
-     * @return QueryBuilder
      */
     public function getQueryBuilder(): QueryBuilder
     {
@@ -419,7 +391,6 @@ class Connection extends Component
     /**
      * Returns the request handler (Guzzle client for the moment).
      * Creates and setups handler if not set.
-     * @return Client
      */
     public function getHandler(): Client
     {
@@ -427,16 +398,40 @@ class Connection extends Component
             $requestConfig = $this->requestConfig;
             $responseConfig = array_merge([
                 'class' => 'yii\httpclient\Response',
-                'format' => Client::FORMAT_JSON
+                'format' => Client::FORMAT_JSON,
             ], $this->responseConfig);
             static::$_handler = new Client([
                 'baseUrl' => $this->baseUrl,
                 'requestConfig' => $requestConfig,
-                'responseConfig' => $responseConfig
+                'responseConfig' => $responseConfig,
             ]);
         }
 
         return static::$_handler;
+    }
+
+    /**
+     * Returns the authorization config.
+     *
+     * @return string authorization config
+     */
+    protected function getAuth()
+    {
+        if ($this->_auth instanceof Closure) {
+            $this->_auth = call_user_func($this->_auth, $this);
+        }
+
+        return $this->_auth;
+    }
+
+    /**
+     * Changes the current authorization config.
+     *
+     * @param string|Closure $auth authorization config
+     */
+    public function setAuth($auth)
+    {
+        $this->_auth = $auth;
     }
 
     /**

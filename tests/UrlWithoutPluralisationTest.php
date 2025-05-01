@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -6,7 +8,6 @@
  */
 
 namespace yiiunit\extensions\rest;
-
 
 use Yii;
 use yiiunit\extensions\rest\models\RestModel;
@@ -20,9 +21,9 @@ class UrlWithoutPluralisationTest extends TestCase
         $this->mockWebApplication([
             'components' => [
                 'rest' => [
-                    'usePluralisation' => false
-                ]
-            ]
+                    'usePluralisation' => false,
+                ],
+            ],
         ]);
         Yii::$app->log->logger->flush();
     }
@@ -39,7 +40,9 @@ class UrlWithoutPluralisationTest extends TestCase
 
     public function testGetAnotherOne()
     {
-        RestModel::find()->where(['id' => 1])->one();
+        RestModel::find()->where([
+            'id' => 1,
+        ])->one();
 
         $logEntry = $this->parseLogs();
 
@@ -57,7 +60,7 @@ class UrlWithoutPluralisationTest extends TestCase
                 'created_at' => time(),
                 'updated_at' => time(),
                 'created_by' => 'simialbi',
-                'updated_by' => 'simialbi'
+                'updated_by' => 'simialbi',
             ],
             'attributes' => [
                 'id' => 1,
@@ -66,8 +69,8 @@ class UrlWithoutPluralisationTest extends TestCase
                 'created_at' => time(),
                 'updated_at' => time(),
                 'created_by' => 'simialbi',
-                'updated_by' => 'simialbi'
-            ]
+                'updated_by' => 'simialbi',
+            ],
         ]);
 
         $model->delete();

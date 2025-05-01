@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -12,22 +14,15 @@ use yii\db\ExpressionInterface;
 use yii\helpers\ArrayHelper;
 
 /**
- * {@inheritdoc}
- *
  * @property \simialbi\yii2\rest\QueryBuilder $queryBuilder
  */
 class HashConditionBuilder extends \yii\db\conditions\HashConditionBuilder
 {
     use ConditionBuilderTrait;
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return array
-     */
     public function build(ExpressionInterface $expression, array &$params = []): array
     {
-        /* @var $expression \yii\db\conditions\HashCondition */
+        /** @var \yii\db\conditions\HashCondition $expression */
 
         $hash = $expression->getHash();
         $parts = [];
@@ -37,12 +32,18 @@ class HashConditionBuilder extends \yii\db\conditions\HashConditionBuilder
                 $parts[] = $this->queryBuilder->buildCondition(new InCondition($column, 'IN', $value), $params);
             } else {
                 if ($value === null) {
-                    $parts[] = [$column => null];
+                    $parts[] = [
+                        $column => null,
+                    ];
                 } elseif ($value instanceof ExpressionInterface) {
-                    $parts[] = [$column => $this->queryBuilder->buildExpression($value, $params)];
+                    $parts[] = [
+                        $column => $this->queryBuilder->buildExpression($value, $params),
+                    ];
                 } else {
                     $phName = $this->queryBuilder->bindParam($value, $params);
-                    $parts[] = [$column => $phName];
+                    $parts[] = [
+                        $column => $phName,
+                    ];
                 }
             }
         }

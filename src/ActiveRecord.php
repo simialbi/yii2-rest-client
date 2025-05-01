@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: simialbi
@@ -15,9 +17,6 @@ use yii\db\BaseActiveRecord;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 
-/**
- * Class ActiveRecord
- */
 class ActiveRecord extends BaseActiveRecord
 {
     /**
@@ -26,9 +25,50 @@ class ActiveRecord extends BaseActiveRecord
     private $_attributeFields = [];
 
     /**
-     * @return array
-     * @throws \ReflectionException
+     * @throws InvalidConfigException
      */
+    public static function primaryKey(): array
+    {
+        throw new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    public static function find(): ActiveQuery
+    {
+        /** @var ActiveQuery $query */
+        $query = Yii::createObject(ActiveQuery::class, [get_called_class()]);
+
+        return $query;
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    public static function getDb(): ?Connection
+    {
+        /** @var Connection $connection */
+        return Yii::$app->get(Connection::getDriverName());
+    }
+
+    /**
+     * Declares the name of the url path associated with this AR class.
+     *
+     * By default this method returns the class name as the path by calling [[Inflector::camel2id()]].
+     * For example:
+     * `Customer` becomes `customer`, and `OrderItem` becomes `order-item`. You may override this method
+     * if the path is not named after this convention.
+     *
+     * @return string the url path
+     * @throws InvalidConfigException
+     */
+    public static function modelName(): string
+    {
+        $path = Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
+        return static::getDb()->usePluralisation ? Inflector::pluralize($path) : $path;
+    }
+
     public function attributes(): array
     {
         if (empty($this->_attributeFields)) {
@@ -52,59 +92,6 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * {@inheritdoc}
-     * @throws InvalidConfigException
-     */
-    public static function primaryKey(): array
-    {
-        throw new InvalidConfigException('The primaryKey() method of RestClient ActiveRecord has to be implemented by child classes.');
-    }
-
-    /**
-     * {@inheritdoc}
-     *
-     * @return ActiveQuery
-     * @throws InvalidConfigException
-     */
-    public static function find(): ActiveQuery
-    {
-        /* @var $query ActiveQuery */
-        $query = Yii::createObject(ActiveQuery::class, [get_called_class()]);
-
-        return $query;
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @return null|Connection
-     * @throws InvalidConfigException
-     */
-    public static function getDb(): ?Connection
-    {
-        /* @var $connection Connection */
-        return Yii::$app->get(Connection::getDriverName());
-    }
-
-    /**
-     * Declares the name of the url path associated with this AR class.
-     *
-     * By default this method returns the class name as the path by calling [[Inflector::camel2id()]].
-     * For example:
-     * `Customer` becomes `customer`, and `OrderItem` becomes `order-item`. You may override this method
-     * if the path is not named after this convention.
-     *
-     * @return string the url path
-     * @throws InvalidConfigException
-     */
-    public static function modelName(): string
-    {
-        $path = Inflector::camel2id(StringHelper::basename(get_called_class()), '-');
-        return static::getDb()->usePluralisation ? Inflector::pluralize($path) : $path;
-    }
-
-    /**
-     * {@inheritdoc}
      * @throws InvalidConfigException
      * @throws Exception
      */
@@ -117,6 +104,61 @@ class ActiveRecord extends BaseActiveRecord
         }
 
         return $this->insertInternal($attributes);
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    public function update($runValidation = true, $attributeNames = null)
+    {
+        if ($runValidation && !$this->validate($attributeNames)) {
+            Yii::info('Model not inserted due to validation error.', __METHOD__);
+
+            return false;
+        }
+
+        return $this->updateInternal($attributeNames);
+    }
+
+    /**
+     * @throws InvalidConfigException
+     */
+    public function delete()
+    {
+        $result = false;
+        if ($this->beforeDelete()) {
+            $command = static::getDb()->createCommand();
+            $result = $command->delete(static::modelName(), $this->getOldPrimaryKey());
+
+            $this->setOldAttributes(null);
+            $this->afterDelete();
+        }
+
+        return $result;
+    }
+
+    /**
+     * @throws NotSupportedException
+     */
+    public function unlinkAll($name, $delete = false)
+    {
+        throw new NotSupportedException('unlinkAll() is not supported by RestClient, use unlink() instead.');
+    }
+
+    /**
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function hasOne($class, $link)
+    {
+        return parent::hasOne($class, $link);
+    }
+
+    /**
+     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
+     */
+    public function hasMany($class, $link)
+    {
+        return parent::hasMany($class, $link);
     }
 
     /**
@@ -150,22 +192,6 @@ class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * {@inheritdoc}
-     * @throws InvalidConfigException
-     */
-    public function update($runValidation = true, $attributeNames = null)
-    {
-        if ($runValidation && !$this->validate($attributeNames)) {
-            Yii::info('Model not inserted due to validation error.', __METHOD__);
-
-            return false;
-        }
-
-        return $this->updateInternal($attributeNames);
-    }
-
-    /**
-     * {@inheritdoc}
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
      */
@@ -192,50 +218,5 @@ class ActiveRecord extends BaseActiveRecord
         $this->afterSave(false, $changedAttributes);
 
         return $rows;
-    }
-
-    /**
-     * {@inheritdoc}
-     * @throws InvalidConfigException
-     */
-    public function delete()
-    {
-        $result = false;
-        if ($this->beforeDelete()) {
-            $command = static::getDb()->createCommand();
-            $result = $command->delete(static::modelName(), $this->getOldPrimaryKey());
-
-            $this->setOldAttributes(null);
-            $this->afterDelete();
-        }
-
-        return $result;
-    }
-
-    /**
-     * {@inheritdoc}
-     * @throws NotSupportedException
-     */
-    public function unlinkAll($name, $delete = false)
-    {
-        throw new NotSupportedException('unlinkAll() is not supported by RestClient, use unlink() instead.');
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
-     */
-    public function hasOne($class, $link)
-    {
-        return parent::hasOne($class, $link);
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return \simialbi\yii2\rest\ActiveQuery|\yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
-     */
-    public function hasMany($class, $link)
-    {
-        return parent::hasMany($class, $link);
     }
 }

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: simialbi
@@ -12,9 +14,6 @@ use yii\base\InvalidConfigException;
 use yii\data\ActiveDataProvider;
 use yii\db\QueryInterface;
 
-/**
- * Class RestDataProvider
- */
 class RestDataProvider extends ActiveDataProvider
 {
     /**
@@ -24,7 +23,6 @@ class RestDataProvider extends ActiveDataProvider
     public $query;
 
     /**
-     * {@inheritdoc}
      * @throws InvalidConfigException
      * @throws \yii\db\Exception
      * @throws \yii\base\NotSupportedException
@@ -35,6 +33,6 @@ class RestDataProvider extends ActiveDataProvider
             throw new InvalidConfigException('The "query" property must be an instance of a class that implements the QueryInterface e.g. simialbi\yii2\rest\Query or its subclasses.');
         }
 
-        return (int)$this->query->count();
+        return (int) $this->query->count();
     }
 }

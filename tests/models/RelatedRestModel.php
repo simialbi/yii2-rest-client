@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -10,7 +12,6 @@ namespace yiiunit\extensions\rest\models;
 use simialbi\yii2\rest\ActiveRecord;
 
 /**
- * Class RelatedRestModel
  * @package yiiunit\extensions\rest\models
  *
  * @property integer $id
@@ -24,9 +25,6 @@ use simialbi\yii2\rest\ActiveRecord;
  */
 class RelatedRestModel extends ActiveRecord
 {
-    /**
-     * {@inheritDoc}
-     */
     public static function primaryKey(): array
     {
         return ['id'];

@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -35,8 +37,6 @@ class ActiveFixture extends BaseActiveFixture
 
 
     /**
-     * {@inheritDoc}
-     *
      * @throws InvalidConfigException
      */
     public function init()
@@ -51,8 +51,6 @@ class ActiveFixture extends BaseActiveFixture
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @throws InvalidConfigException
      * @throws \ReflectionException
      */
@@ -65,10 +63,7 @@ class ActiveFixture extends BaseActiveFixture
     }
 
     /**
-     * {@inheritDoc}
-     *
      * @throws InvalidConfigException
-     * @throws \ReflectionException
      */
     protected function getData(): array
     {
@@ -85,9 +80,6 @@ class ActiveFixture extends BaseActiveFixture
         return parent::getData();
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function getModel($name)
     {
         if (!isset($this->data[$name])) {
@@ -101,14 +93,14 @@ class ActiveFixture extends BaseActiveFixture
             throw new InvalidConfigException('The "modelClass" property must be set.');
         }
         $row = $this->data[$name];
-        /* @var $modelClass ActiveRecord */
+        /** @var ActiveRecord $modelClass */
         $modelClass = $this->modelClass;
         $keys = [];
         foreach ($modelClass::primaryKey() as $key) {
             $keys[$key] = $row[$key] ?? null;
         }
 
-        /* @var $model ActiveRecord */
+        /** @var ActiveRecord $model */
         $model = new $modelClass();
         $model->setOldAttributes($row);
         $model->setAttributes($row, false);

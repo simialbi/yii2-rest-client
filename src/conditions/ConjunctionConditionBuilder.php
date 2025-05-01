@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -10,8 +12,6 @@ use yii\db\conditions\ConjunctionCondition;
 use yii\db\ExpressionInterface;
 
 /**
- * {@inheritdoc}
- *
  * @property \simialbi\yii2\rest\QueryBuilder $queryBuilder
  */
 class ConjunctionConditionBuilder extends \yii\db\conditions\ConjunctionConditionBuilder
@@ -19,13 +19,11 @@ class ConjunctionConditionBuilder extends \yii\db\conditions\ConjunctionConditio
     use ConditionBuilderTrait;
 
     /**
-     * {@inheritdoc}
-     *
-     * @return array
+     * @throws \Exception
      */
     public function build(ExpressionInterface $condition, array &$params = []): array
     {
-        /* @var $condition ConjunctionCondition */
+        /** @var ConjunctionCondition $condition */
         $parts = $this->buildExpressionsFrom($condition, $params);
 
         if (empty($parts)) {
@@ -36,7 +34,9 @@ class ConjunctionConditionBuilder extends \yii\db\conditions\ConjunctionConditio
             return $parts;
         }
 
-        return [$this->getOperator($condition->getOperator()) => $parts];
+        return [
+            $this->getOperator($condition->getOperator()) => $parts,
+        ];
     }
 
     /**
@@ -44,9 +44,10 @@ class ConjunctionConditionBuilder extends \yii\db\conditions\ConjunctionConditio
      *
      * @param ExpressionInterface|ConjunctionCondition $condition the expression to be built.
      * @param array $params the binding parameters.
+     *
      * @return string[]
      */
-    private function buildExpressionsFrom(ExpressionInterface $condition, &$params = [])
+    private function buildExpressionsFrom(ExpressionInterface $condition, array &$params = []): array
     {
         $parts = [];
         foreach ($condition->getExpressions() as $condition) {

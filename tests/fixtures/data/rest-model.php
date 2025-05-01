@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     [
         'id' => 1,
@@ -8,7 +10,7 @@ return [
         'created_at' => 1555660035,
         'updated_at' => 1555660035,
         'created_by' => 'simialbi',
-        'updated_by' => 'simialbi'
+        'updated_by' => 'simialbi',
     ],
     [
         'id' => 2,
@@ -17,7 +19,7 @@ return [
         'created_at' => 1555660035,
         'updated_at' => 1555660035,
         'created_by' => 'simialbi',
-        'updated_by' => 'simialbi'
+        'updated_by' => 'simialbi',
     ],
     [
         'id' => 3,
@@ -26,6 +28,6 @@ return [
         'created_at' => 1555660035,
         'updated_at' => 1555660035,
         'created_by' => 'simialbi',
-        'updated_by' => 'simialbi'
-    ]
+        'updated_by' => 'simialbi',
+    ],
 ];

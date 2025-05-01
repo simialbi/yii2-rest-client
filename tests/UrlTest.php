@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -32,7 +34,9 @@ class UrlTest extends TestCase
 
     public function testGetAnotherOne()
     {
-        RestModel::find()->where(['id' => 1])->one();
+        RestModel::find()->where([
+            'id' => 1,
+        ])->one();
 
         $logEntry = $this->parseLogs();
 
@@ -42,7 +46,9 @@ class UrlTest extends TestCase
 
     public function testFilter()
     {
-        RestModel::find()->where(['name' => 'John'])->one();
+        RestModel::find()->where([
+            'name' => 'John',
+        ])->one();
 
         $logEntry = $this->parseLogs();
 
@@ -55,12 +61,14 @@ class UrlTest extends TestCase
         $this->mockWebApplication([
             'components' => [
                 'rest' => [
-                    'useFilterKeyword' => false
-                ]
-            ]
+                    'useFilterKeyword' => false,
+                ],
+            ],
         ]);
 
-        RestModel::find()->where(['name' => 'John'])->one();
+        RestModel::find()->where([
+            'name' => 'John',
+        ])->one();
 
         $logEntry = $this->parseLogs();
 
@@ -78,7 +86,7 @@ class UrlTest extends TestCase
                 'created_at' => time(),
                 'updated_at' => time(),
                 'created_by' => 'simialbi',
-                'updated_by' => 'simialbi'
+                'updated_by' => 'simialbi',
             ],
             'attributes' => [
                 'id' => 1,
@@ -87,8 +95,8 @@ class UrlTest extends TestCase
                 'created_at' => time(),
                 'updated_at' => time(),
                 'created_by' => 'simialbi',
-                'updated_by' => 'simialbi'
-            ]
+                'updated_by' => 'simialbi',
+            ],
         ]);
 
         $model->delete();

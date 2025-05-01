@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -10,8 +12,6 @@ use yii\db\conditions\LikeCondition;
 use yii\db\ExpressionInterface;
 
 /**
- * {@inheritdoc}
- *
  * @property \simialbi\yii2\rest\QueryBuilder $queryBuilder
  */
 class LikeConditionBuilder extends \yii\db\conditions\LikeConditionBuilder
@@ -19,29 +19,29 @@ class LikeConditionBuilder extends \yii\db\conditions\LikeConditionBuilder
     use ConditionBuilderTrait;
 
     /**
-     * {@inheritdoc}
-     *
-     * @return array
+     * @throws \Exception
      */
     public function build(ExpressionInterface $expression, array &$params = []): array
     {
-        /* @var $expression LikeCondition */
+        /** @var LikeCondition $expression */
         $operator = $expression->getOperator();
         $column = $expression->getColumn();
         $values = $expression->getValue();
-//        $escape = $expression->getEscapingReplacements();
-//        if ($escape === null || $escape === []) {
-//            $escape = $this->escapingReplacements;
-//        }
+        //        $escape = $expression->getEscapingReplacements();
+        //        if ($escape === null || $escape === []) {
+        //            $escape = $this->escapingReplacements;
+        //        }
 
-        list($andor, $not,) = $this->parseOperator($operator);
+        [$andor, $not] = $this->parseOperator($operator);
 
         if (!is_array($values)) {
             $values = [$values];
         }
 
         if (empty($values)) {
-            return $not ? [] : $this->queryBuilder->buildCondition([0 => 1], $params);
+            return $not ? [] : $this->queryBuilder->buildCondition([
+                0 => 1,
+            ], $params);
         }
 
         $parts = [];
@@ -51,7 +51,11 @@ class LikeConditionBuilder extends \yii\db\conditions\LikeConditionBuilder
             } else {
                 $phName = $this->queryBuilder->bindParam($value, $params);
             }
-            $parts[] = [$column => ['like' => reset($phName)]];
+            $parts[] = [
+                $column => [
+                    'like' => reset($phName),
+                ],
+            ];
         }
 
         if (count($parts) === 1) {

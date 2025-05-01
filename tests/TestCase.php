@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -14,9 +16,6 @@ class TestCase extends \PHPUnit\Framework\TestCase
 {
     private $_index = 0;
 
-    /**
-     * {@inheritdoc}
-     */
     protected function tearDown(): void
     {
         parent::tearDown();
@@ -24,10 +23,6 @@ class TestCase extends \PHPUnit\Framework\TestCase
     }
 
 
-    /**
-     * @param array $config
-     * @param string $appClass
-     */
     protected function mockWebApplication(array $config = [], string $appClass = '\yii\web\Application')
     {
         new $appClass(ArrayHelper::merge([
@@ -47,18 +42,18 @@ class TestCase extends \PHPUnit\Framework\TestCase
                 'rest' => [
                     'class' => 'simialbi\yii2\rest\Connection',
                     'baseUrl' => 'https://api.site.com/',
-                    'isTestMode' => true
+                    'isTestMode' => true,
                 ],
                 'log' => [
                     'traceLevel' => 3,
                     'targets' => [
                         [
-                            'class' => 'yiiunit\extensions\rest\log\ArrayTarget'
-                        ]
+                            'class' => 'yiiunit\extensions\rest\log\ArrayTarget',
+                        ],
                     ],
-                    'flushInterval' => 0
-                ]
-            ]
+                    'flushInterval' => 0,
+                ],
+            ],
         ], $config));
     }
 
@@ -73,7 +68,6 @@ class TestCase extends \PHPUnit\Framework\TestCase
 
     /**
      * Parse log from index and returns data
-     * @return array
      */
     protected function parseLogs(): array
     {
@@ -105,7 +99,7 @@ class TestCase extends \PHPUnit\Framework\TestCase
             'method' => $method,
             'url' => $url,
             'data' => $data,
-            'headers' => $headers
+            'headers' => $headers,
         ];
     }
 }

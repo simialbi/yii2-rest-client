@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -6,7 +8,6 @@
  */
 
 namespace yiiunit\extensions\rest\fixtures;
-
 
 use simialbi\yii2\rest\ActiveFixture;
 

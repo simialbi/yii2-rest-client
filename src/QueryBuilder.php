@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: simialbi
@@ -8,7 +10,6 @@
 
 namespace simialbi\yii2\rest;
 
-use yii\base\NotSupportedException;
 use yii\db\Expression;
 use yii\db\ExpressionInterface;
 use yii\helpers\ArrayHelper;
@@ -42,12 +43,10 @@ class QueryBuilder extends \yii\db\QueryBuilder
      */
     protected $conditionBuilders = [
         'AND' => 'buildAndCondition',
-        'IN' => 'buildInCondition'
+        'IN' => 'buildInCondition',
     ];
 
     /**
-     * QueryBuilder constructor.
-     *
      * @param mixed $connection the database connection.
      * @param array $config name-value pairs that will be used to initialize the object properties
      */
@@ -62,9 +61,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
      * @param Query $query
      * @param array $params
      *
-     * @return array
      * @throws \yii\db\Exception
-     * @throws NotSupportedException
      */
     public function build($query, $params = []): array
     {
@@ -77,7 +74,7 @@ class QueryBuilder extends \yii\db\QueryBuilder
             'pathInfo' => $this->buildFrom($query->from, $params),
             'expand' => $this->buildJoin($query->join, $params),
             'filter' => $this->buildWhere($query->where, $params),
-            'sort' => $this->buildOrderBy($query->orderBy)
+            'sort' => $this->buildOrderBy($query->orderBy),
         ];
 
         $clauses = array_merge($clauses, $this->buildLimit($query->limit, $query->offset));
@@ -87,13 +84,10 @@ class QueryBuilder extends \yii\db\QueryBuilder
             'pathInfo' => ArrayHelper::remove($clauses, 'pathInfo'),
             'queryParams' => array_filter($clauses, function ($value) {
                 return $value !== '' && $value !== [] && $value !== null && (!is_string($value) || trim($value) !== '');
-            })
+            }),
         ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function buildSelect($columns, &$params, $distinct = false, $selectOption = null): string
     {
         if (!empty($columns) && is_array($columns)) {
@@ -118,9 +112,6 @@ class QueryBuilder extends \yii\db\QueryBuilder
         return trim($tables);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     public function buildJoin($joins, &$params): string
     {
         if (empty($joins)) {
@@ -153,11 +144,6 @@ class QueryBuilder extends \yii\db\QueryBuilder
         return $this->buildCondition($condition, $params);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return array
-     */
     public function buildCondition($condition, &$params): array
     {
         if (empty($condition) || !is_array($condition)) {
@@ -165,47 +151,16 @@ class QueryBuilder extends \yii\db\QueryBuilder
         }
 
         $condition = $this->createConditionFromArray($condition);
-        /* @var $condition \yii\db\conditions\SimpleCondition */
+        /** @var \yii\db\conditions\SimpleCondition $condition */
 
         return $this->buildExpression($condition, $params);
     }
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return array
-     */
     public function buildExpression(ExpressionInterface $expression, &$params = []): array
     {
-        return (array)parent::buildExpression($expression, $params);
+        return (array) parent::buildExpression($expression, $params);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function defaultExpressionBuilders(): array
-    {
-        return [
-            'yii\db\Query' => 'yii\db\QueryExpressionBuilder',
-            'yii\db\PdoValue' => 'yii\db\PdoValueBuilder',
-            'yii\db\Expression' => 'yii\db\ExpressionBuilder',
-            'yii\db\conditions\ConjunctionCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
-            'yii\db\conditions\NotCondition' => 'simialbi\yii2\rest\conditions\NotConditionBuilder',
-            'yii\db\conditions\AndCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
-            'yii\db\conditions\OrCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
-            'yii\db\conditions\BetweenCondition' => 'simialbi\yii2\rest\conditions\BetweenConditionBuilder',
-            'yii\db\conditions\InCondition' => 'simialbi\yii2\rest\conditions\InConditionBuilder',
-            'yii\db\conditions\LikeCondition' => 'simialbi\yii2\rest\conditions\LikeConditionBuilder',
-//            'yii\db\conditions\ExistsCondition' => 'yii\db\conditions\ExistsConditionBuilder',
-            'yii\db\conditions\SimpleCondition' => 'simialbi\yii2\rest\conditions\SimpleConditionBuilder',
-            'yii\db\conditions\HashCondition' => 'simialbi\yii2\rest\conditions\HashConditionBuilder',
-//            'yii\db\conditions\BetweenColumnsCondition' => 'yii\db\conditions\BetweenColumnsConditionBuilder'
-        ];
-    }
-
-    /**
-     * {@inheritdoc}
-     */
     public function buildOrderBy($columns): string
     {
         if (empty($columns)) {
@@ -224,17 +179,14 @@ class QueryBuilder extends \yii\db\QueryBuilder
         return implode($this->separator, $orders);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function buildLimit($limit, $offset)
+    public function buildLimit($limit, $offset): array
     {
         $clauses = [];
         if ($this->hasLimit($limit)) {
-            $clauses['per-page'] = (string)$limit;
+            $clauses['per-page'] = (string) $limit;
         }
         if ($this->hasOffset($offset)) {
-            $offset = intval((string)$offset);
+            $offset = intval((string) $offset);
             $clauses['page'] = ceil($offset / $limit) + 1;
         }
 
@@ -242,10 +194,33 @@ class QueryBuilder extends \yii\db\QueryBuilder
     }
 
     /**
-     * {@inheritdoc}
+     * @return mixed
      */
-    public function bindParam($value, &$params): ?string
+    public function bindParam($value, &$params)
     {
         return $value;
+    }
+
+    /**
+     * @return string[]
+     */
+    protected function defaultExpressionBuilders(): array
+    {
+        return [
+            'yii\db\Query' => 'yii\db\QueryExpressionBuilder',
+            'yii\db\PdoValue' => 'yii\db\PdoValueBuilder',
+            'yii\db\Expression' => 'yii\db\ExpressionBuilder',
+            'yii\db\conditions\ConjunctionCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
+            'yii\db\conditions\NotCondition' => 'simialbi\yii2\rest\conditions\NotConditionBuilder',
+            'yii\db\conditions\AndCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
+            'yii\db\conditions\OrCondition' => 'simialbi\yii2\rest\conditions\ConjunctionConditionBuilder',
+            'yii\db\conditions\BetweenCondition' => 'simialbi\yii2\rest\conditions\BetweenConditionBuilder',
+            'yii\db\conditions\InCondition' => 'simialbi\yii2\rest\conditions\InConditionBuilder',
+            'yii\db\conditions\LikeCondition' => 'simialbi\yii2\rest\conditions\LikeConditionBuilder',
+            //            'yii\db\conditions\ExistsCondition' => 'yii\db\conditions\ExistsConditionBuilder',
+            'yii\db\conditions\SimpleCondition' => 'simialbi\yii2\rest\conditions\SimpleConditionBuilder',
+            'yii\db\conditions\HashCondition' => 'simialbi\yii2\rest\conditions\HashConditionBuilder',
+            //            'yii\db\conditions\BetweenColumnsCondition' => 'yii\db\conditions\BetweenColumnsConditionBuilder'
+        ];
     }
 }

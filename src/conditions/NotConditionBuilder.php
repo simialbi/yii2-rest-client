@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -10,22 +12,15 @@ use yii\db\conditions\NotCondition;
 use yii\db\ExpressionInterface;
 
 /**
- * {@inheritdoc}
- *
  * @property \simialbi\yii2\rest\QueryBuilder $queryBuilder
  */
 class NotConditionBuilder extends \yii\db\conditions\NotConditionBuilder
 {
     use ConditionBuilderTrait;
 
-    /**
-     * {@inheritdoc}
-     *
-     * @return array
-     */
     public function build(ExpressionInterface $expression, array &$params = []): array
     {
-        /* @var $expression NotCondition */
+        /** @var NotCondition $expression */
         $operand = $expression->getCondition();
         if (empty($operand)) {
             return [];
@@ -33,13 +28,12 @@ class NotConditionBuilder extends \yii\db\conditions\NotConditionBuilder
 
         $expression = $this->queryBuilder->buildCondition($operand, $params);
 
-        return [$this->getNegationOperator() => $expression];
+        return [
+            $this->getNegationOperator() => $expression,
+        ];
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function getNegationOperator()
+    protected function getNegationOperator(): string
     {
         return 'not';
     }

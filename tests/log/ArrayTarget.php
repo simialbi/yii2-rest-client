@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * @package yii2-rest-client
  * @author Simon Karlen <simi.albi@outlook.com>
@@ -11,7 +13,6 @@ use yii\helpers\ArrayHelper;
 use yii\log\Target;
 
 /**
- * Class ArrayTarget
  * @package yiiunit\extensions\rest\log
  *
  * @property-read array $cache
@@ -34,7 +35,6 @@ class ArrayTarget extends Target
 
     /**
      * Getter for cache variable
-     * @return array
      */
     public function getCache(): array
     {

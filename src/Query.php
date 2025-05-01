@@ -1,4 +1,6 @@
 <?php
+
+declare(strict_types=1);
 /**
  * Created by PhpStorm.
  * User: simialbi
@@ -12,8 +14,6 @@ use Yii;
 use yii\db\QueryInterface;
 
 /**
- * Class Query
- *
  * @property string $modelClass the name of the ActiveRecord class.
  */
 class Query extends \yii\db\Query implements QueryInterface
@@ -29,8 +29,6 @@ class Query extends \yii\db\Query implements QueryInterface
     private $_modelClass;
 
     /**
-     * Constructor.
-     *
      * @param string $modelClass the model class associated with this query
      * @param array $config configurations to be applied to the newly created query object
      */
@@ -41,7 +39,7 @@ class Query extends \yii\db\Query implements QueryInterface
     }
 
     /**
-     * {@inheritDoc}
+     * @param Query $from
      */
     public static function create($from): self
     {
@@ -83,7 +81,7 @@ class Query extends \yii\db\Query implements QueryInterface
      * Returns the number of records.
      *
      * @param string $q the COUNT expression. Defaults to '*'.
-     * @param Connection $db the database connection used to execute the query.
+     * @param Connection|null $db the database connection used to execute the query.
      * If this parameter is not given, the `db` application component will be used.
      *
      * @return int number of records.
@@ -99,14 +97,14 @@ class Query extends \yii\db\Query implements QueryInterface
 
         $result = $this->createCommand($db)->execute('head');
 
-        /* @var $result \yii\web\HeaderCollection */
-        return $result->get('x-pagination-total-count');
+        /** @var \yii\web\HeaderCollection $result */
+        return (int)$result->get('x-pagination-total-count');
     }
 
     /**
      * Creates a DB command that can be used to execute this query.
      *
-     * @param Connection $db the connection used to generate the statement.
+     * @param Connection|null $db the connection used to generate the statement.
      * If this parameter is not given, the `rest` application component will be used.
      *
      * @return Command the created DB command instance.
@@ -128,20 +126,6 @@ class Query extends \yii\db\Query implements QueryInterface
     }
 
     /**
-     * {@inheritDoc}
-     * @param Command $command
-     * @return Command
-     */
-    protected function setCommandCache($command): Command
-    {
-        /** @var \yii\db\Command $command */
-        $command = parent::setCommandCache($command);
-        /** @var Command $command */
-        return $command;
-    }
-
-    /**
-     * {@inheritdoc}
      * @throws \yii\base\InvalidConfigException
      * @throws \yii\db\Exception
      * @throws \yii\base\NotSupportedException
@@ -154,8 +138,8 @@ class Query extends \yii\db\Query implements QueryInterface
 
         $result = $this->createCommand($db)->execute('head');
 
-        /* @var $result \yii\web\HeaderCollection */
-        return ($result->get('x-pagination-total-count', 0) > 0);
+        /** @var \yii\web\HeaderCollection $result */
+        return $result->get('x-pagination-total-count', 0) > 0;
     }
 
     /**
@@ -183,10 +167,22 @@ class Query extends \yii\db\Query implements QueryInterface
 
     /**
      * Setter for modelClass
+     *
      * @param mixed $modelClass
      */
     public function setModelClass($modelClass)
     {
         $this->_modelClass = $modelClass;
+    }
+
+    /**
+     * @param Command $command
+     */
+    protected function setCommandCache($command): Command
+    {
+        /** @var \yii\db\Command $command */
+        $command = parent::setCommandCache($command);
+        /** @var Command $command */
+        return $command;
     }
 }
